@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# This script copies some configuration file from current running system
+# to the updated partition (new system).
+#
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+BUNDLE_MOUNT_POINT="$3"
+
+if [ "$SLOT_CLASS" = "rootfs" ]; then
+	( xargs tar -c --ignore-failed-read -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+	/usr/local/share/ca-certificates
+	EOF
+fi

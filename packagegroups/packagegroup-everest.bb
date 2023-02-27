@@ -13,5 +13,6 @@ RDEPENDS:${PN} = " \
     everest-framework \
     mosquitto \
     openssl-bin \
+    rauc \
     tzdata tzdata-europe \
 "
