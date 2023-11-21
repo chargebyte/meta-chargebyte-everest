@@ -52,7 +52,7 @@ def get_bundlename(d):
     else:
         machine = "Unknown"
 
-    if d.getVar('CUSTOMER', True) != "":
+    if d.getVar('CUSTOMER', True) != "" and d.getVar('CUSTOMER', True) is not None:
         customer = "_" + d.getVar('CUSTOMER', True)
     else:
         customer = ""
