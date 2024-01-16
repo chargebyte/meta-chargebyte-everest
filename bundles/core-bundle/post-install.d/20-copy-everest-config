@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# This script copies some configuration files and directories from current running system
+# to the updated partition (new system).
+#
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+BUNDLE_MOUNT_POINT="$3"
+
+if [ "$SLOT_CLASS" = "rootfs" ]; then
+	# source helper
+	. "$BUNDLE_MOUNT_POINT/post-install.d/00-tar-helper"
+
+	# note that the following copies symlinks as-is since tar option --dereference is not given
+	( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+	/etc/everest/config.yaml
+	/etc/everest/user-config
+	/etc/everest/ocpp-config.json
+	/etc/everest/certs
+	/var/lib/everest
+	EOF
+
+	# in releases up to v0.2.0, config.yaml was a symlink, so we add a special check here to
+	# fix things up by replacing the symlink with a plain file copy
+	if [ -L "$SLOT_MOUNT_POINT/etc/everest/config.yaml" ]; then
+		rm -f "$SLOT_MOUNT_POINT/etc/everest/config.yaml.new"
+		cat /etc/everest/config.yaml > "$SLOT_MOUNT_POINT/etc/everest/config.yaml.new"
+		mv "$SLOT_MOUNT_POINT/etc/everest/config.yaml.new" "$SLOT_MOUNT_POINT/etc/everest/config.yaml"
+	fi
+fi
