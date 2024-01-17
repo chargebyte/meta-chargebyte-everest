@@ -9,7 +9,10 @@ SLOT_MOUNT_POINT="$2"
 BUNDLE_MOUNT_POINT="$3"
 
 if [ "$SLOT_CLASS" = "rootfs" ]; then
-	( xargs tar -c --ignore-failed-read -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+	# source helper
+	. "$BUNDLE_MOUNT_POINT/post-install.d/00-tar-helper"
+
+	( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
 	/etc/hostname
 	/etc/hosts
 	/etc/machine-id
@@ -35,7 +38,7 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 
 	# migrate older /root to /home/root if present
 	if [ -d /root/.ssh ]; then
-		( xargs tar -c --ignore-failed-read -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT/home"
+		( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT/home"
 		/root/.ssh
 		EOF
 	fi
