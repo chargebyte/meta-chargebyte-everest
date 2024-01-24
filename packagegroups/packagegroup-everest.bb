@@ -15,4 +15,6 @@ RDEPENDS:${PN} = " \
     openssl-bin \
     rauc \
     tzdata tzdata-europe \
+    mosquitto-clients \
+    tcpdump \
 "
