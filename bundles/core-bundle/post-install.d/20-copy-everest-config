@@ -22,8 +22,10 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	EOF
 
 	# in releases up to v0.2.0, config.yaml was a symlink, so we add a special check here to
-	# fix things up by replacing the symlink with a plain file copy
-	if [ -L "$SLOT_MOUNT_POINT/etc/everest/config.yaml" ]; then
+	# fix things up by replacing the symlink with a plain file copy; (the 2nd condition is
+	# important to ensure that we are doing an EVerest to EVerest update)
+	if [ -L "$SLOT_MOUNT_POINT/etc/everest/config.yaml" ] && \
+	   [ -f /etc/everest/config.yaml ]; then
 		rm -f "$SLOT_MOUNT_POINT/etc/everest/config.yaml.new"
 		cat /etc/everest/config.yaml > "$SLOT_MOUNT_POINT/etc/everest/config.yaml.new"
 		mv "$SLOT_MOUNT_POINT/etc/everest/config.yaml.new" "$SLOT_MOUNT_POINT/etc/everest/config.yaml"
