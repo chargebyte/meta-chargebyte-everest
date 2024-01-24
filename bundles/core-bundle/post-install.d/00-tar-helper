@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# This script is a helper to be sourced in scripts which uses tar. It tries to detect which
+# This script is a helper to be sourced in scripts which use tar. It tries to detect which
 # variant of tar is available to workaround passing the parameter --ignore-failed-read to
 # busybox's tar which does not know about this option.
 # For this the variable IGNORE_FAILED_READ is set to "--ignore-failed-read"
-# or empty which can then used in tar invocations.
+# or empty which can then be used in tar invocations.
 #
 
 IGNORE_FAILED_READ="--ignore-failed-read"
