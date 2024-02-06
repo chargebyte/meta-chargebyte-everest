@@ -4,6 +4,7 @@
 EVEREST_INCLUDE_MODULES = " \
     API \
     Auth \
+    DCSupplySimulator \
     DPM1000 \
     DummyTokenProvider \
     DummyTokenProviderManual \
@@ -17,6 +18,7 @@ EVEREST_INCLUDE_MODULES = " \
     EvseV2G \
     EvSlac \
     GenericPowermeter \
+    IMDSimulator \
     LemDCBM400600 \
     OCPP \
     OCPP201 \
