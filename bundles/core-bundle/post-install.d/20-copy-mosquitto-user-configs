@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# This script copies some configuration files and directories from current running system
+# to the updated partition (new system).
+#
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+BUNDLE_MOUNT_POINT="$3"
+
+if [ "$SLOT_CLASS" = "rootfs" ]; then
+	# copy over *.conf files if present
+	ls /etc/mosquitto/conf.d/*.conf &> /dev/null && \
+	    cp /etc/mosquitto/conf.d/*.conf "$SLOT_MOUNT_POINT/etc/mosquitto/conf.d"
+fi
