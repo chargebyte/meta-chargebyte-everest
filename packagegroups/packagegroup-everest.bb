@@ -11,6 +11,7 @@ RDEPENDS:${PN} = " \
     boost-program-options \
     everest-core \
     everest-framework \
+    remotechargeport \
     mosquitto \
     openssl-bin \
     rauc \
