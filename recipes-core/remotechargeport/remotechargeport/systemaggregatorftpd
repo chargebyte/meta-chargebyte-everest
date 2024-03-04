@@ -1,0 +1,5 @@
+# defines the directory where satellites uploads the diagnostics data to
+UPLOAD_DIR="/srv/diagnostics-incoming"
+
+# defines the workdir where the combined tarball will be created
+WORK_DIR="/srv/diagnostics-outgoing"

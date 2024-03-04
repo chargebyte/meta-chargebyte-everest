@@ -1,0 +1,9 @@
+[Unit]
+Description=FTP Daemon Socket for EVerest's SystemAggregator
+
+[Socket]
+ListenStream=2121
+Accept=yes
+
+[Install]
+WantedBy=sockets.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=FTP Daemon for EVerest's SystemAggregator
+Requires=systemaggregatorftpd.socket
+
+[Service]
+Type=simple
+Environment="UPLOAD_DIR=/srv/diagnostics-incoming"
+EnvironmentFile=-/etc/default/systemaggregator
+ExecStartPre=+/usr/bin/install -d -o www-data -g www-data $UPLOAD_DIR
+ExecStart=/usr/sbin/ftpd -w $UPLOAD_DIR
+User=www-data
+Group=www-data
+StandardInput=socket
+StandardError=journal
+RuntimeMaxSec=180
+
+[Install]
+WantedBy=multi-user.target
