@@ -31,6 +31,8 @@ EXTRA_OECMAKE += "-DDISABLE_EDM=ON"
 
 SYSTEMD_SERVICE:${PN} = "systemaggregatorftpd.socket systemaggregatorftpd@.service"
 
+FILES:${PN} += " ${datadir}/everest"
+
 do_install:append() {
     # install environment configuration for helper ftpd
     install -m 0755 -d ${D}${sysconfdir}/default
@@ -44,7 +46,4 @@ do_install:append() {
 
     # don't install example configuration
     rm -rf ${D}${sysconfdir}/everest
-
-    # this module has no data files
-    rm -rf ${D}${datadir}
 }
