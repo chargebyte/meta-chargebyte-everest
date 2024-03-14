@@ -1,0 +1,67 @@
+From 1dc1730307099f9221fb380729f8e94716173cd6 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <michael.heimpold@chargebyte.com>
+Date: Sun, 25 Feb 2024 14:32:08 +0100
+Subject: [PATCH] System: delayed reset execution
+
+Delay the actual execution a little bit to allow communication back to callee.
+
+Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+---
+ modules/System/main/systemImpl.cpp | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/modules/System/main/systemImpl.cpp b/modules/System/main/systemImpl.cpp
+index 8c0ad67..cc93800 100644
+--- a/modules/System/main/systemImpl.cpp
++++ b/modules/System/main/systemImpl.cpp
+@@ -4,8 +4,10 @@
+ #include "systemImpl.hpp"
+ 
+ #include <cstdlib>
++#include <chrono>
+ #include <fstream>
+ #include <sstream>
++#include <thread>
+ #include <vector>
+ 
+ #include <unistd.h>
+@@ -14,6 +16,8 @@
+ 
+ #include <boost/process.hpp>
+ 
++using namespace std::chrono_literals;
++
+ namespace module {
+ namespace main {
+ 
+@@ -505,13 +509,20 @@ bool systemImpl::handle_is_reset_allowed(types::system::ResetType& type) {
+ }
+ 
+ void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
+-    if (type == types::system::ResetType::Soft) {
+-        EVLOG_info << "Performing soft reset";
+-        kill(getpid(), SIGINT);
+-    } else {
+-        EVLOG_info << "Performing hard reset. Rebooting...";
+-        boost::process::system("reboot");
+-    }
++    // do the actual work a little bit delayed to allow communication in the background
++    std::thread([this, type, scheduled] {
++        EVLOG_info << "Reset request received: " << type << ", " << (scheduled ? "" : "not ") << "scheduled";
++
++        std::this_thread::sleep_for(3s);
++
++        if (type == types::system::ResetType::Soft) {
++            EVLOG_info << "Performing soft reset now.";
++            kill(getpid(), SIGINT);
++        } else {
++            EVLOG_info << "Performing hard reset now via system reboot.";
++            boost::process::system("reboot");
++        }
++    }).detach();
+ }
+ 
+ bool systemImpl::handle_set_system_time(std::string& timestamp) {
+-- 
+2.34.1
+
