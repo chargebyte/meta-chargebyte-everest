@@ -1,0 +1,285 @@
+From e3536047db9e8070cc1552a62d41cb6ea63cf481 Mon Sep 17 00:00:00 2001
+From: Mohannad Oraby <mohannad.oraby@chargebyte.com>
+Date: Wed, 28 Feb 2024 16:19:06 +0100
+Subject: [PATCH] Implement system interface
+
+Signed-off-by: Mohannad Oraby <mohannad.oraby@chargebyte.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@chargebyte.com>
+---
+ modules/System/firmware_updater.sh |  20 +++-
+ modules/System/main/systemImpl.cpp | 158 +++++++++++++++++++++++++++--
+ 2 files changed, 167 insertions(+), 11 deletions(-)
+
+diff --git a/modules/System/firmware_updater.sh b/modules/System/firmware_updater.sh
+index e060841..b43efb1 100755
+--- a/modules/System/firmware_updater.sh
++++ b/modules/System/firmware_updater.sh
+@@ -6,6 +6,7 @@ echo "$DOWNLOADING"
+ curl --progress-bar --connect-timeout "$CONNECTION_TIMEOUT" "${2}" -o "${3}"
+ curl_exit_code=$?
+ sleep 2
++
+ if [[ $curl_exit_code -eq 0 ]]; then
+     echo "$DOWNLOADED"
+ else
+@@ -15,7 +16,22 @@ sleep 2
+ 
+ if [[ $curl_exit_code -eq 0 ]]; then
+     echo "$INSTALLING"
+-    sleep 2
++    rauc install "${3}" >/dev/null 2>&1
++fi
++
++# Get the line containing "Booted from" and extract the value after the colon
++booted_from=$(rauc status | grep "Booted from" | awk -F ': ' '{print $2}')
++
++# Get the line containing "Activated" and extract the value after the colon
++activated=$(rauc status | grep "Activated" | awk -F ': ' '{print $2}')
++
++# Get the number the number of paritions marked as good
++marked_good=$(rauc status | grep "boot status" | grep -c good)
++
++# Check if booted_from and activated are different and the 2 paritions are marked as good
++if [[ "$booted_from" != "$activated" && "$marked_good" -eq 2 ]]; then
++
+     echo "$INSTALLED"
+-    sleep 2
++else
++    echo "$INSTALLATION_FAILED"
+ fi
+diff --git a/modules/System/main/systemImpl.cpp b/modules/System/main/systemImpl.cpp
+index 73bf4d2..d219d20 100644
+--- a/modules/System/main/systemImpl.cpp
++++ b/modules/System/main/systemImpl.cpp
+@@ -5,6 +5,7 @@
+ 
+ #include <cstdlib>
+ #include <fstream>
++#include <sstream>
+ #include <vector>
+ 
+ #include <unistd.h>
+@@ -24,6 +25,55 @@ const std::string SIGNED_FIRMWARE_INSTALLER = "signed_firmware_installer.sh";
+ 
+ namespace fs = std::filesystem;
+ 
++static const char * const diagnostic_files[] =
++{
++ "/tmp/commands.log", /* must always be the first entry */
++ "/etc/everest/config.yaml",
++ "/etc/everest/ocpp-config.json",
++ "/usr/share/secc/VERSION",
++ "/etc/os-release",
++ "/tmp/everest_ocpp_logs",
++ "/var/lib/everest/ocpp16",
++ nullptr
++};
++
++static const char * const diagnostic_commands[] =
++{
++ "df",
++ "dmesg",
++ "ifconfig",
++ "ps ax",
++ "lsblk",
++ "lsusb",
++ "cat /proc/meminfo",
++ "uptime",
++ "timedatectl status",
++ "cat /sys/kernel/debug/gpio",
++ "cat /sys/kernel/debug/pwm",
++ "cat /sys/kernel/debug/eth1/info",
++ "cat /sys/kernel/debug/eth2/info",
++ "ethtool eth0",
++ "ethtool -S eth1",
++ "plctool -r -i eth1",
++ "ethtool -S eth2",
++ "plctool -r -i eth2 FF:FF:FF:FF:FF:FF",
++ "plcstat -t -i eth2",
++ "[ \"$(plcID -i eth2 -M)\" = '50:D3:E4:93:3F:85:5B:70:40:78:4D:F8:15:AA:8D:B7' ] && echo 'Warning: HomePlugAV default key set on mains interface!'",
++ "fw_printenv",
++ "fw_printenv -c /etc/baptism-data.config serial",
++ "md5sum /boot/*.dtb",
++ "ls -Rl1 /etc/everest/certs/",
++ "ls -Rl1 /usr/libexec/everest/modules/",
++ "rauc status --detailed",
++ "cat /proc/tty/driver/IMX-uart",
++ "grep \"\" /sys/bus/iio/devices/iio\\:device0/in_voltage?_raw",
++ "mosquitto_sub -v -t '#' -W 1",
++ "i2cdetect -y 3",
++ "mmc extcsd read /dev/mmcblk0",
++ "journalctl --no-pager -u everest",
++ nullptr
++};
++
+ // FIXME (aw): this function needs to be refactored into some kind of utility library
+ fs::path create_temp_file(const fs::path& dir, const std::string& prefix) {
+     const std::string fn_template = (dir / prefix).string() + "XXXXXX" + std::string(1, '\0');
+@@ -87,6 +137,7 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
+             std::string temp;
+             retries += 1;
+             while (std::getline(stream, temp)) {
++                EVLOG_info << "Firmware update status: " << temp;
+                 firmware_status.firmware_update_status = types::system::string_to_firmware_update_status_enum(temp);
+                 this->publish_firmware_update_status(firmware_status);
+             }
+@@ -97,6 +148,12 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
+             cmd.wait();
+         }
+         this->standard_firmware_update_running = false;
++        if (firmware_status.firmware_update_status == types::system::FirmwareUpdateStatusEnum::Installed) {
++            EVLOG_warning << "Firmware update finished successfully. Initiating reboot in 5 seconds";
++            std::this_thread::sleep_for(std::chrono::seconds(5));
++            EVLOG_info << "Rebooting...";
++            boost::process::system("reboot");
++        }
+     });
+     this->update_firmware_thread.detach();
+ }
+@@ -290,6 +347,69 @@ void systemImpl::handle_allow_firmware_installation() {
+     // TODO: implement me
+ }
+ 
++static std::string escape_single_quotes(const std::string &str) {
++	std::stringstream ss;
++	size_t i;
++
++	for (i = 0; i < str.length(); i++) {
++		if (str[i] == '\'') {
++			ss << "'\"" << str[i] << "\"'";
++		} else {
++			ss << str[i];
++		}
++	}
++
++	return ss.str();
++}
++
++static bool build_upload_logs(const std::string &targetFile) {
++	std::stringstream ss;
++	std::string command;
++	int i, rv;
++
++	// Start new file
++	ss << "echo \"\" > " << diagnostic_files[0];
++	rv = std::system(ss.str().c_str());
++
++	for (i = 0; diagnostic_commands[i]; i++) {
++
++		// Generate header with command description
++		ss.str("");
++		ss << "echo '" << escape_single_quotes(std::string(diagnostic_commands[i])) << "' >> " << diagnostic_files[0];
++		rv = std::system(ss.str().c_str());
++
++		// Append command output
++		ss.str("");
++		ss << diagnostic_commands[i] << " >> " << diagnostic_files[0] << " 2>&1";
++		command = ss.str();
++
++		rv = std::system(command.c_str());
++
++		// Append empty line
++		ss.str("");
++		ss << "echo \"\" >> " << diagnostic_files[0];
++		rv = std::system(ss.str().c_str());
++	}
++
++	// This doesn't work with busybox tar
++	ss.str("");
++	ss << "tar -c -h --ignore-failed-read -z";
++	ss << " -f " << targetFile << " --";
++
++	for (i = 0; diagnostic_files[i]; i++) {
++        ss << " " << diagnostic_files[i];
++	}
++
++	rv = std::system(ss.str().c_str());
++	if (rv) {
++		EVLOG_error << "tar returned: rv = " << rv;
++	}
++
++	std::remove(diagnostic_files[0]);
++
++	return rv == 0;
++}
++
+ types::system::UploadLogsResponse
+ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_request) {
+ 
+@@ -303,15 +423,19 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+ 
+     const auto date_time = Everest::Date::to_rfc3339(date::utc_clock::now());
+     // TODO(piet): consider start time and end time
+-    const auto diagnostics_file_path = create_temp_file(fs::temp_directory_path(), "diagnostics-" + date_time);
+-    const auto diagnostics_file_name = diagnostics_file_path.filename().string();
++
++    const auto diagnostics_file_name = "diagnostics" + date_time + ".tar.gz";
++    const auto diagnostics_file_path = fs::temp_directory_path() / diagnostics_file_name;
++    EVLOG_info << "Diagnostics file: " << diagnostics_file_path;
+ 
+     response.upload_logs_status = types::system::UploadLogsStatus::Accepted;
+     response.file_name = diagnostics_file_name;
+ 
+-    const auto fake_diagnostics_file = json({{"diagnostics", {{"key", "value"}}}});
+-    std::ofstream diagnostics_file(diagnostics_file_path.c_str());
+-    diagnostics_file << fake_diagnostics_file.dump();
++    if (!build_upload_logs(diagnostics_file_path.string())) {
++        response.upload_logs_status = types::system::UploadLogsStatus::Rejected;
++        return response;
++    }
++
+ 
+     this->upload_logs_thread = std::thread([this, upload_logs_request, diagnostics_file_name, diagnostics_file_path]() {
+         if (this->log_upload_running) {
+@@ -356,6 +480,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+                 } else {
+                     log_status.log_status = types::system::LogStatusEnum::Uploading;
+                 }
++                EVLOG_info << "Log upload status: " << temp;
+                 this->publish_log_status(log_status);
+             }
+             if (this->interrupt_log_upload) {
+@@ -372,6 +497,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+         this->log_upload_running = false;
+         this->log_upload_cv.notify_one();
+         EVLOG_info << "Log upload thread finished";
++        std::filesystem::remove(diagnostics_file_path);
+     });
+     this->upload_logs_thread.detach();
+ 
+@@ -388,14 +514,28 @@ void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
+         EVLOG_info << "Performing soft reset";
+         kill(getpid(), SIGINT);
+     } else {
+-        EVLOG_info << "Performing hard reset";
+-        kill(getpid(), SIGINT); // FIXME(piet): Define appropriate behavior for hard reset
++        EVLOG_info << "Performing hard reset. Rebooting...";
++        boost::process::system("reboot");
+     }
+ }
+ 
+ bool systemImpl::handle_set_system_time(std::string& timestamp) {
+-    // your code for cmd set_system_time goes here
+-    return true;
++    int exit_code = 1;
++
++    //FIXME: Time is set on every Heartbeat due to milliseconds differences. This needs a proper fix
++    static bool time_is_set = false;
++
++    if (!time_is_set && (timestamp != Everest::Date::to_rfc3339(date::utc_clock::now()))) {
++        EVLOG_debug << "Setting system time to: " << timestamp;
++        exit_code = boost::process::system("/bin/date", "--set", timestamp);
++        time_is_set = true;
++    }
++    if (exit_code == 0)
++        return true;
++    else
++        return false;
++
++    return false;
+ };
+ 
+ types::system::BootReason systemImpl::handle_get_boot_reason() {
+-- 
+2.34.1
+

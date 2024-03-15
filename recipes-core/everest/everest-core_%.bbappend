@@ -1,3 +1,10 @@
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+
+SRC_URI += " \
+    file://0001-Implement-system-interface.patch \
+    file://0001-System-delayed-reset-execution.patch \
+"
+
 # don't build/include undesired modules: some of the everest-core modules do not make sense
 # on our chargebyte embedded platforms, e.g. BSPs for other boards, javascript simulations
 # or similar; so the following list defines which modules we want to have in our standard image
