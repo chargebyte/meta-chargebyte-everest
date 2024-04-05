@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# This script copies some configuration file from current running system
+# to the updated partition (new system).
+#
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+BUNDLE_MOUNT_POINT="$3"
+
+if [ "$SLOT_CLASS" = "rootfs" ]; then
+	# Make sure the daemon is not running before copying the data to prevent data loss
+	NYMEAD_STATUS="$(systemctl is-active nymead)"
+	if [ "$NYMEAD_STATUS" = "active" ]; then
+		systemctl stop nymead
+	fi
+
+	# Copy settings and data if they are present
+	( xargs tar -c --ignore-failed-read -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+	/etc/nymea
+	/var/lib/nymea
+	/var/cache/nymea
+	EOF
+fi
