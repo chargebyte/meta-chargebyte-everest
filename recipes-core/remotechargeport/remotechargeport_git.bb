@@ -4,14 +4,14 @@ LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464"
 
 SRC_URI = " \
-    git://github.com/mhei/remotechargeport.git;branch=improve-get-diagnostics;protocol=https \
+    git://github.com/mhei/remotechargeport.git;branch=main;protocol=https \
     file://systemaggregatorftpd \
     file://systemaggregatorftpd.socket \
     file://systemaggregatorftpd@.service \
 "
 
-SRCREV = "${AUTOREV}"
-PV = "2024.02.0+git${SRCPV}"
+SRCREV = "d7d826797818060b3a236cba9b33874310a10463"
+PV = "2024.03.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
