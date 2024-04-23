@@ -1,4 +1,4 @@
-From e3536047db9e8070cc1552a62d41cb6ea63cf481 Mon Sep 17 00:00:00 2001
+From 1d6c490e7c3eb92e0ee8d340959e24503dbda07e Mon Sep 17 00:00:00 2001
 From: Mohannad Oraby <mohannad.oraby@chargebyte.com>
 Date: Wed, 28 Feb 2024 16:19:06 +0100
 Subject: [PATCH] Implement system interface
@@ -48,7 +48,7 @@ index e060841..b43efb1 100755
 +    echo "$INSTALLATION_FAILED"
  fi
 diff --git a/modules/System/main/systemImpl.cpp b/modules/System/main/systemImpl.cpp
-index 73bf4d2..d219d20 100644
+index 62d198e..347e3c9 100644
 --- a/modules/System/main/systemImpl.cpp
 +++ b/modules/System/main/systemImpl.cpp
 @@ -5,6 +5,7 @@
@@ -136,7 +136,7 @@ index 73bf4d2..d219d20 100644
      });
      this->update_firmware_thread.detach();
  }
-@@ -290,6 +347,69 @@ void systemImpl::handle_allow_firmware_installation() {
+@@ -313,6 +370,69 @@ void systemImpl::handle_allow_firmware_installation() {
      // TODO: implement me
  }
  
@@ -206,7 +206,7 @@ index 73bf4d2..d219d20 100644
  types::system::UploadLogsResponse
  systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_request) {
  
-@@ -303,15 +423,19 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+@@ -326,15 +446,19 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
  
      const auto date_time = Everest::Date::to_rfc3339(date::utc_clock::now());
      // TODO(piet): consider start time and end time
@@ -231,7 +231,7 @@ index 73bf4d2..d219d20 100644
  
      this->upload_logs_thread = std::thread([this, upload_logs_request, diagnostics_file_name, diagnostics_file_path]() {
          if (this->log_upload_running) {
-@@ -356,6 +480,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+@@ -379,6 +503,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
                  } else {
                      log_status.log_status = types::system::LogStatusEnum::Uploading;
                  }
@@ -239,7 +239,7 @@ index 73bf4d2..d219d20 100644
                  this->publish_log_status(log_status);
              }
              if (this->interrupt_log_upload) {
-@@ -372,6 +497,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+@@ -395,6 +520,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
          this->log_upload_running = false;
          this->log_upload_cv.notify_one();
          EVLOG_info << "Log upload thread finished";
@@ -247,7 +247,7 @@ index 73bf4d2..d219d20 100644
      });
      this->upload_logs_thread.detach();
  
-@@ -388,14 +514,28 @@ void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
+@@ -411,14 +537,28 @@ void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
          EVLOG_info << "Performing soft reset";
          kill(getpid(), SIGINT);
      } else {

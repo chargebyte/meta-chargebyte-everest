@@ -1,4 +1,4 @@
-From 1dc1730307099f9221fb380729f8e94716173cd6 Mon Sep 17 00:00:00 2001
+From 559b03c39dcb322c86bac9a86ec5f65f08febfe6 Mon Sep 17 00:00:00 2001
 From: Michael Heimpold <michael.heimpold@chargebyte.com>
 Date: Sun, 25 Feb 2024 14:32:08 +0100
 Subject: [PATCH] System: delayed reset execution
@@ -11,7 +11,7 @@ Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
  1 file changed, 18 insertions(+), 7 deletions(-)
 
 diff --git a/modules/System/main/systemImpl.cpp b/modules/System/main/systemImpl.cpp
-index 8c0ad67..cc93800 100644
+index 347e3c9..7b46d2e 100644
 --- a/modules/System/main/systemImpl.cpp
 +++ b/modules/System/main/systemImpl.cpp
 @@ -4,8 +4,10 @@
@@ -34,7 +34,7 @@ index 8c0ad67..cc93800 100644
  namespace module {
  namespace main {
  
-@@ -505,13 +509,20 @@ bool systemImpl::handle_is_reset_allowed(types::system::ResetType& type) {
+@@ -533,13 +537,20 @@ bool systemImpl::handle_is_reset_allowed(types::system::ResetType& type) {
  }
  
  void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
