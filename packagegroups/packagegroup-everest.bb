@@ -18,5 +18,4 @@ RDEPENDS:${PN} = " \
     tzdata tzdata-europe \
     mosquitto-clients \
     tcpdump \
-    yq \
 "
