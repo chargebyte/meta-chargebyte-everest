@@ -1,0 +1,36 @@
+From f9a5646a32afb36d123666fd686e4d9c8d4c193d Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <michael.heimpold@chargebyte.com>
+Date: Thu, 25 Apr 2024 14:17:39 +0200
+Subject: [PATCH] System: don't download to /tmp but to /srv
+
+Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+---
+ modules/System/main/systemImpl.cpp | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/modules/System/main/systemImpl.cpp b/modules/System/main/systemImpl.cpp
+index 7b46d2e..ce4f84c 100644
+--- a/modules/System/main/systemImpl.cpp
++++ b/modules/System/main/systemImpl.cpp
+@@ -115,9 +115,17 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
+     // create temporary file
+     const auto date_time = Everest::Date::to_rfc3339(date::utc_clock::now());
+ 
+-    const auto firmware_file_path = create_temp_file(fs::temp_directory_path(), "firmware-" + date_time);
++    // Note: we don't download to /tmp as in vanilla everest since our download sizes
++    // might be larger than available RAM;
++    // we use a fixed path for now so that we can ensure a cleanup...
++    const auto firmware_file_path = fs::path("/srv/firmware-update.image");
+     const auto constants = this->scripts_path / CONSTANTS;
+ 
++    // ...here by deleting a possibly existing, older file
++    if (fs::exists(firmware_file_path)) {
++        fs::remove(firmware_file_path);
++    }
++
+     this->update_firmware_thread = std::thread([this, firmware_update_request, firmware_file_path, constants]() {
+         const auto firmware_updater = this->scripts_path / FIRMWARE_UPDATER;
+ 
+-- 
+2.34.1
+
