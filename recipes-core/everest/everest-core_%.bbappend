@@ -1,6 +1,8 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
+    file://0001-Drop-timestamp-from-logging.patch \
+    file://journalctl-alias.sh \
     file://0001-Implement-system-interface.patch \
     file://0001-System-delayed-reset-execution.patch \
     file://0001-System-don-t-download-to-tmp-but-to-srv.patch \
@@ -51,4 +53,8 @@ do_install:append() {
 
     # remove unneeded files from image
     rm -rf ${D}${datadir}/everest/docker
+
+    # install alias for journalctl convenience
+    install -d ${D}${sysconfdir}/profile.d/
+    install -m 0644 ${WORKDIR}/journalctl-alias.sh ${D}${sysconfdir}/profile.d/
 }
