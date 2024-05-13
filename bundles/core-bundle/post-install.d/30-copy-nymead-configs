@@ -9,6 +9,9 @@ SLOT_MOUNT_POINT="$2"
 BUNDLE_MOUNT_POINT="$3"
 
 if [ "$SLOT_CLASS" = "rootfs" ]; then
+	# source helper
+	. "$BUNDLE_MOUNT_POINT/post-install.d/00-tar-helper"
+
 	# Make sure the daemon is not running before copying the data to prevent data loss
 	NYMEAD_STATUS="$(systemctl is-active nymead)"
 	if [ "$NYMEAD_STATUS" = "active" ]; then
@@ -16,7 +19,7 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	fi
 
 	# Copy settings and data if they are present
-	( xargs tar -c --ignore-failed-read -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+	( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
 	/etc/nymea
 	/var/lib/nymea
 	/var/cache/nymea
