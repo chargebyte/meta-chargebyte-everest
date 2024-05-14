@@ -1,0 +1,36 @@
+From 33716b2856a481ac5cd36dd47ec7d8a05e58a080 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <michael.heimpold@chargebyte.com>
+Date: Wed, 8 May 2024 17:17:37 +0200
+Subject: [PATCH] Drop timestamp from logging
+
+The output is captured by systemd-journald on chargebyte platforms,
+which already adds a timestamp with higher precision to each line.
+
+We can thus drop the timestamp here.
+
+(This change comes in combination with a patch which outputs
+the journald timestamp with this higher precision by default when
+called interactively.)
+
+Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+Upstream-Status: Inappropriate [makes only sense on environment controlled platforms]
+---
+ cmake/assets/logging.ini | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/assets/logging.ini b/cmake/assets/logging.ini
+index 516f336..8a65156 100644
+--- a/cmake/assets/logging.ini
++++ b/cmake/assets/logging.ini
+@@ -14,7 +14,7 @@ Filter="%Severity% >= INFO"
+ [Sinks.Console]
+ Destination=Console
+ # Filter="%Target% contains \"MySink1\""
+-Format="%TimeStamp% [%Severity%] \033[1;32m%Process%\033[0m \033[1;36m%function%\033[0m \033[1;30m%file%:\033[0m\033[1;32m%line%\033[0m: %Message%"
++Format="[%Severity%] \033[1;32m%Process%\033[0m \033[1;36m%function%\033[0m \033[1;30m%file%:\033[0m\033[1;32m%line%\033[0m: %Message%"
+ Asynchronous=false
+ AutoFlush=true
+ SeverityStringColorDebug="\033[1;30m"
+-- 
+2.34.1
+
