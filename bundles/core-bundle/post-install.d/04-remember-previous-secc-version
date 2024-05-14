@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# This script copies over the current firmware information to the updated system
+# so that (version dependend) post-processing of configuration files will be
+# possible after the restart of the system.
+#
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+BUNDLE_MOUNT_POINT="$3"
+
+SOURCE_DIR="/usr/share/secc"
+TARGET_DIR="/var/lib/secc/previous-version"
+
+if [ "$SLOT_CLASS" = "rootfs" ]; then
+	# create destination directory
+	mkdir -p "$SLOT_MOUNT_POINT/$TARGET_DIR"
+
+	# copy version information files if present
+	if ls "$SOURCE_DIR"/* &> /dev/null; then
+		cp -p "$SOURCE_DIR"/* "$SLOT_MOUNT_POINT/$TARGET_DIR"
+	fi
+fi
