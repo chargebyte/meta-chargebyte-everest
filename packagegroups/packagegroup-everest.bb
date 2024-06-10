@@ -9,6 +9,7 @@ RDEPENDS:${PN} = " \
     packagegroup-bsp \
     boost \
     boost-program-options \
+    everest-chargebyte \
     everest-core \
     everest-framework \
     remotechargeport \
