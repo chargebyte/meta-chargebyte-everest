@@ -1,17 +1,16 @@
-From 1d6c490e7c3eb92e0ee8d340959e24503dbda07e Mon Sep 17 00:00:00 2001
+From 34e8ee58f74b5e0174b24ab8db3ed8502585920b Mon Sep 17 00:00:00 2001
 From: Mohannad Oraby <mohannad.oraby@chargebyte.com>
-Date: Wed, 28 Feb 2024 16:19:06 +0100
+Date: Tue, 4 Jun 2024 11:03:48 +0200
 Subject: [PATCH] Implement system interface
 
 Signed-off-by: Mohannad Oraby <mohannad.oraby@chargebyte.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@chargebyte.com>
 ---
  modules/System/firmware_updater.sh |  20 +++-
- modules/System/main/systemImpl.cpp | 158 +++++++++++++++++++++++++++--
- 2 files changed, 167 insertions(+), 11 deletions(-)
+ modules/System/main/systemImpl.cpp | 159 +++++++++++++++++++++++++++--
+ 2 files changed, 168 insertions(+), 11 deletions(-)
 
 diff --git a/modules/System/firmware_updater.sh b/modules/System/firmware_updater.sh
-index e060841..b43efb1 100755
+index e0608413..b43efb14 100755
 --- a/modules/System/firmware_updater.sh
 +++ b/modules/System/firmware_updater.sh
 @@ -6,6 +6,7 @@ echo "$DOWNLOADING"
@@ -48,18 +47,18 @@ index e060841..b43efb1 100755
 +    echo "$INSTALLATION_FAILED"
  fi
 diff --git a/modules/System/main/systemImpl.cpp b/modules/System/main/systemImpl.cpp
-index 62d198e..347e3c9 100644
+index ecb34cad..6652f186 100644
 --- a/modules/System/main/systemImpl.cpp
 +++ b/modules/System/main/systemImpl.cpp
-@@ -5,6 +5,7 @@
- 
+@@ -6,6 +6,7 @@
+ #include <chrono>
  #include <cstdlib>
  #include <fstream>
 +#include <sstream>
+ #include <thread>
  #include <vector>
  
- #include <unistd.h>
-@@ -24,6 +25,55 @@ const std::string SIGNED_FIRMWARE_INSTALLER = "signed_firmware_installer.sh";
+@@ -26,6 +27,55 @@ const std::string SIGNED_FIRMWARE_INSTALLER = "signed_firmware_installer.sh";
  
  namespace fs = std::filesystem;
  
@@ -115,7 +114,7 @@ index 62d198e..347e3c9 100644
  // FIXME (aw): this function needs to be refactored into some kind of utility library
  fs::path create_temp_file(const fs::path& dir, const std::string& prefix) {
      const std::string fn_template = (dir / prefix).string() + "XXXXXX" + std::string(1, '\0');
-@@ -87,6 +137,7 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
+@@ -89,6 +139,7 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
              std::string temp;
              retries += 1;
              while (std::getline(stream, temp)) {
@@ -123,7 +122,7 @@ index 62d198e..347e3c9 100644
                  firmware_status.firmware_update_status = types::system::string_to_firmware_update_status_enum(temp);
                  this->publish_firmware_update_status(firmware_status);
              }
-@@ -97,6 +148,12 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
+@@ -99,6 +150,12 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
              cmd.wait();
          }
          this->standard_firmware_update_running = false;
@@ -136,7 +135,7 @@ index 62d198e..347e3c9 100644
      });
      this->update_firmware_thread.detach();
  }
-@@ -313,6 +370,69 @@ void systemImpl::handle_allow_firmware_installation() {
+@@ -315,6 +372,69 @@ void systemImpl::handle_allow_firmware_installation() {
      // TODO: implement me
  }
  
@@ -206,7 +205,7 @@ index 62d198e..347e3c9 100644
  types::system::UploadLogsResponse
  systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_request) {
  
-@@ -326,15 +446,19 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+@@ -328,15 +448,19 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
  
      const auto date_time = Everest::Date::to_rfc3339(date::utc_clock::now());
      // TODO(piet): consider start time and end time
@@ -231,7 +230,7 @@ index 62d198e..347e3c9 100644
  
      this->upload_logs_thread = std::thread([this, upload_logs_request, diagnostics_file_name, diagnostics_file_path]() {
          if (this->log_upload_running) {
-@@ -379,6 +503,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+@@ -381,6 +505,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
                  } else {
                      log_status.log_status = types::system::LogStatusEnum::Uploading;
                  }
@@ -239,7 +238,7 @@ index 62d198e..347e3c9 100644
                  this->publish_log_status(log_status);
              }
              if (this->interrupt_log_upload) {
-@@ -395,6 +520,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
+@@ -397,6 +522,7 @@ systemImpl::handle_upload_logs(types::system::UploadLogsRequest& upload_logs_req
          this->log_upload_running = false;
          this->log_upload_cv.notify_one();
          EVLOG_info << "Log upload thread finished";
@@ -247,15 +246,16 @@ index 62d198e..347e3c9 100644
      });
      this->upload_logs_thread.detach();
  
-@@ -411,14 +537,28 @@ void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
-         EVLOG_info << "Performing soft reset";
-         kill(getpid(), SIGINT);
-     } else {
--        EVLOG_info << "Performing hard reset";
--        kill(getpid(), SIGINT); // FIXME(piet): Define appropriate behavior for hard reset
-+        EVLOG_info << "Performing hard reset. Rebooting...";
-+        boost::process::system("reboot");
-     }
+@@ -421,15 +547,30 @@ void systemImpl::handle_reset(types::system::ResetType& type, bool& scheduled) {
+             EVLOG_info << "Performing soft reset now.";
+             kill(getpid(), SIGINT);
+         } else {
+-            EVLOG_info << "Performing hard reset now.";
+-            kill(getpid(), SIGINT); // FIXME(piet): Define appropriate behavior for hard reset
++            EVLOG_info << "Performing hard reset. Rebooting...";
++            boost::process::system("reboot");
+         }
+     }).detach();
  }
  
  bool systemImpl::handle_set_system_time(std::string& timestamp) {
@@ -271,6 +271,7 @@ index 62d198e..347e3c9 100644
 +        exit_code = boost::process::system("/bin/date", "--set", timestamp);
 +        time_is_set = true;
 +    }
++
 +    if (exit_code == 0)
 +        return true;
 +    else
@@ -281,5 +282,5 @@ index 62d198e..347e3c9 100644
  
  types::system::BootReason systemImpl::handle_get_boot_reason() {
 -- 
-2.34.1
+2.25.1
 
