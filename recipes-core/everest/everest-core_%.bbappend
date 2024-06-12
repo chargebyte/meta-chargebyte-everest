@@ -3,8 +3,6 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI += " \
     file://0001-Drop-timestamp-from-logging.patch \
     file://journalctl-alias.sh \
-    file://0001-Implement-system-interface.patch \
-    file://0001-System-don-t-download-to-tmp-but-to-srv.patch \
 "
 
 # don't build/include undesired modules: some of the everest-core modules do not make sense
