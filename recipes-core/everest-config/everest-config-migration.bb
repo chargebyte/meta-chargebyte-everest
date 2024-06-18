@@ -16,7 +16,8 @@ S = "${WORKDIR}"
 
 FILES:${PN} += " \
     ${systemd_system_unitdir}/everest.service.d/* \
-    ${libexecdir}/everest/everest-migrate-config.sh \
+    ${libexecdir}/everest/migration/everest-migrate-config.sh \
+    ${libexecdir}/everest/migration/everest-migration-functions.sh \
 "
 
 do_install() {
