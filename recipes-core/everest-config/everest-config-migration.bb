@@ -22,7 +22,7 @@ do_install() {
     # Systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
     install -m 0644 ${WORKDIR}/*.conf ${D}${systemd_system_unitdir}/everest.service.d/
-    
+
     # Migration tool
     install -d ${D}${libexecdir}/everest
     install -m 0755 ${WORKDIR}/everest-migrate-config.sh ${D}${libexecdir}/everest
