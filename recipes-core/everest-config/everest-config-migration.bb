@@ -7,6 +7,7 @@ RDEPENDS:${PN} += "everest-core"
 SRC_URI = " \
     file://01-migrate-configuration.conf \
     file://everest-migrate-config.sh \
+    file://everest-migration-functions.sh \
 "
 
 inherit allarch
@@ -24,6 +25,7 @@ do_install() {
     install -m 0644 ${WORKDIR}/*.conf ${D}${systemd_system_unitdir}/everest.service.d/
 
     # Migration tool
-    install -d ${D}${libexecdir}/everest
-    install -m 0755 ${WORKDIR}/everest-migrate-config.sh ${D}${libexecdir}/everest
+    install -d ${D}${libexecdir}/everest/migration
+    install -m 0755 ${WORKDIR}/everest-migrate-config.sh ${D}${libexecdir}/everest/migration
+    install -m 0755 ${WORKDIR}/everest-migration-functions.sh ${D}${libexecdir}/everest/migration
 }
