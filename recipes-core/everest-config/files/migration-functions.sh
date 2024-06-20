@@ -14,15 +14,15 @@ function run_once() {
     MARKER="$1"
     shift
 
-    if [ ! -d "${MARKER_DIR}" ]; then
-        mkdir -p "${MARKER_DIR}" || return
+    if [ ! -d "$MARKER_DIR" ]; then
+        mkdir -p "$MARKER_DIR" || return 1
     fi
 
-    MARKERFILE="${MARKER_DIR}/${MARKER}"
-    if [ ! -f "${MARKER_DIR}/${MARKER}" ]; then
+    MARKERFILE="$MARKER_DIR/$MARKER"
+    if [ ! -f "$MARKER_DIR/$MARKER" ]; then
         # run the given tool
         "$@"
-        [ $? == 0 ] || return;
-        touch "${MARKERFILE}"
+        [ $? == 0 ] || return 1
+        touch "$MARKERFILE"
     fi
 }
