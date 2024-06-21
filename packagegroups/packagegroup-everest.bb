@@ -19,4 +19,5 @@ RDEPENDS:${PN} = " \
     tzdata tzdata-europe \
     mosquitto-clients \
     tcpdump \
+    everest-config-migration \
 "
