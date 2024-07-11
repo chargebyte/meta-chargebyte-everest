@@ -1,3 +1,0 @@
-EXTRA_OECMAKE += " \
-	-DBUILD_SHARED_LIBS=ON \
-"
