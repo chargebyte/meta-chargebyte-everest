@@ -15,7 +15,7 @@ PV = "2024.05.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
-inherit cmake systemd
+inherit cmake systemd python3native
 
 DEPENDS = " \
     everest-core \
@@ -27,7 +27,10 @@ RDEPENDS:${PN} += "rpclib"
 
 INSANE_SKIP:${PN} = "already-stripped useless-rpaths arch file-rdeps"
 
-EXTRA_OECMAKE += "-DDISABLE_EDM=ON"
+EXTRA_OECMAKE += " \
+    -DDISABLE_EDM=ON \
+    -Dremotechargeport_USE_PYTHON_VENV=OFF \
+"
 
 SYSTEMD_SERVICE:${PN} = "systemaggregatorftpd.socket systemaggregatorftpd@.service"
 
