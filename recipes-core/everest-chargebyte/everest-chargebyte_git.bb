@@ -8,7 +8,7 @@ PV = "0.12.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
-inherit cmake pkgconfig
+inherit cmake pkgconfig python3native
 
 DEPENDS = " \
     everest-core \
@@ -20,4 +20,7 @@ INSANE_SKIP:${PN} = "already-stripped useless-rpaths arch file-rdeps"
 
 FILES:${PN} += "${datadir}/everest/*"
 
-EXTRA_OECMAKE += "-DDISABLE_EDM=ON"
+EXTRA_OECMAKE += " \
+    -DDISABLE_EDM=ON \
+    -Deverest-chargebyte_USE_PYTHON_VENV=OFF \
+"
