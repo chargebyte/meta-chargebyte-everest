@@ -2,6 +2,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
     file://0001-Drop-timestamp-from-logging.patch \
+    file://0001-EvseManager-Wait-for-initial-meter-value-765.patch \
     file://journalctl-alias.sh \
 "
 
