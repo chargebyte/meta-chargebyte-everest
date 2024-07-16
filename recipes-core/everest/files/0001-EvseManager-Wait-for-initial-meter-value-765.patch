@@ -1,0 +1,100 @@
+From 6fc6b84ff276e6ed86d84bddac234415f1a978ac Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Piet=20G=C3=B6mpel?=
+ <37657534+Pietfried@users.noreply.github.com>
+Date: Wed, 10 Jul 2024 08:25:59 +0200
+Subject: [PATCH] EvseManager: Wait for initial meter value (#765)
+
+* Added handling to wait for an initial powermeter value before the EvseManager becomes operational (is ready to start charging). The waiting time is configurable or can be disabled (by configuring 0)
+* Set default for initial_meter_value_timeout_ms to 5000
+---------
+
+Signed-off-by: pietfried <pietgoempel@gmail.com>
+---
+ modules/EvseManager/EvseManager.cpp | 16 ++++++++++++++++
+ modules/EvseManager/EvseManager.hpp |  4 ++++
+ modules/EvseManager/manifest.yaml   |  6 ++++++
+ 3 files changed, 26 insertions(+)
+
+diff --git a/modules/EvseManager/EvseManager.cpp b/modules/EvseManager/EvseManager.cpp
+index 00a8e541..506d33a0 100644
+--- a/modules/EvseManager/EvseManager.cpp
++++ b/modules/EvseManager/EvseManager.cpp
+@@ -677,6 +677,12 @@ void EvseManager::ready() {
+                 latest_powermeter_data_billing = p;
+             }
+ 
++            {
++                std::scoped_lock<std::mutex> lk(powermeter_mutex);
++                initial_powermeter_value_received = true;
++            }
++            powermeter_cv.notify_one();
++
+             // External Nodered interface
+             if (p.phase_seq_error) {
+                 mqtt.publish(fmt::format("everest_external/nodered/{}/powermeter/phaseSeqError", config.connector_id),
+@@ -893,6 +899,13 @@ void EvseManager::ready() {
+         }
+     });
+ 
++    {
++        // wait for first powermeter value
++        std::unique_lock<std::mutex> lk(powermeter_mutex);
++        this->powermeter_cv.wait_for(lk, std::chrono::milliseconds(this->config.initial_meter_value_timeout_ms),
++                                     [this] { return initial_powermeter_value_received; });
++    }
++
+     //  start with a limit of 0 amps. We will get a budget from EnergyManager that is locally limited by hw
+     //  caps.
+     charger->set_max_current(0.0F, date::utc_clock::now() + std::chrono::seconds(120));
+@@ -919,6 +932,9 @@ void EvseManager::ready_to_start_charging() {
+ 
+     this->p_evse->publish_ready(true);
+     EVLOG_info << fmt::format(fmt::emphasis::bold | fg(fmt::terminal_color::green), "🌀🌀🌀 Ready to start charging 🌀🌀🌀");
++    if (!initial_powermeter_value_received) {
++        EVLOG_warning << "No powermeter value received yet!";
++    }
+ }
+ 
+ types::powermeter::Powermeter EvseManager::get_latest_powermeter_data_billing() {
+diff --git a/modules/EvseManager/EvseManager.hpp b/modules/EvseManager/EvseManager.hpp
+index a0b6c057..0f9dd3d2 100644
+--- a/modules/EvseManager/EvseManager.hpp
++++ b/modules/EvseManager/EvseManager.hpp
+@@ -94,6 +94,7 @@ struct Conf {
+     bool uk_smartcharging_random_delay_enable;
+     int uk_smartcharging_random_delay_max_duration;
+     bool uk_smartcharging_random_delay_at_any_change;
++    int initial_meter_value_timeout_ms;
+ };
+ 
+ class EvseManager : public Everest::ModuleBase {
+@@ -324,6 +325,9 @@ private:
+     static constexpr int CABLECHECK_SELFTEST_TIMEOUT{30};
+ 
+     std::atomic_bool current_demand_active{false};
++    std::mutex powermeter_mutex;
++    std::condition_variable powermeter_cv;
++    bool initial_powermeter_value_received{false};
+     // ev@211cfdbe-f69a-4cd6-a4ec-f8aaa3d1b6c8:v1
+ };
+ 
+diff --git a/modules/EvseManager/manifest.yaml b/modules/EvseManager/manifest.yaml
+index 57cdc311..7fe2e0c1 100644
+--- a/modules/EvseManager/manifest.yaml
++++ b/modules/EvseManager/manifest.yaml
+@@ -230,6 +230,12 @@ config:
+       "True: use random delays on any current change during charging. False: Only use if current is reduced to zero or increased from zero."
+     type: boolean
+     default: true
++  initial_meter_value_timeout_ms:
++    description: >-
++      This timeout in ms defines for how long the EvseManager waits for an initial meter value from a powermeter before it becomes ready to start charging.
++      If configured to 0, the EvseManager will not wait for an initial meter value before it becomes ready to start charging.
++    type: integer
++    default: 5000
+ provides:
+   evse:
+     interface: evse_manager
+-- 
+2.34.1
+
