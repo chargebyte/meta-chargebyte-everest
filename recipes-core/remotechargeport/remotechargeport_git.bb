@@ -49,4 +49,7 @@ do_install:append() {
 
     # don't install example configuration
     rm -rf ${D}${sysconfdir}/everest
+
+    # version_information.txt from multiple repositories are in conflict
+    rm -f ${D}${datadir}/everest/version_information.txt
 }

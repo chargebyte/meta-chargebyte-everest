@@ -24,3 +24,8 @@ EXTRA_OECMAKE += " \
     -DDISABLE_EDM=ON \
     -Deverest-chargebyte_USE_PYTHON_VENV=OFF \
 "
+
+do_install:append() {
+    # version_information.txt from multiple repositories are in conflict
+    rm -f ${D}${datadir}/everest/version_information.txt
+}
