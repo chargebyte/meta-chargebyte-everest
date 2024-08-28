@@ -22,7 +22,9 @@ SRC_URI += " \
 
 RAUC_BUNDLE_EXTRA_FILES += "post-install.d"
 
-RAUC_BUNDLE_COMPATIBLE ?= "I2SE Tarragon"
+RAUC_BUNDLE_COMPATIBLE:chargesom ?= "chargebyte Charge SOM"
+RAUC_BUNDLE_COMPATIBLE:evachargese ?= "I2SE EVAcharge SE"
+RAUC_BUNDLE_COMPATIBLE:tarragon ?= "I2SE Tarragon"
 
 RAUC_BUNDLE_HOOKS[file] = "hooks.sh"
 
@@ -49,6 +51,11 @@ def get_bundlename(d):
         machine = "EVAchargeSE"
     elif d.getVar('MACHINE', True) == "tarragon":
         machine = "Tarragon"
+    elif d.getVar('MACHINE', True) == "chargesom":
+        if d.getVar('SUBMACHINE', True) == "dc-evb":
+            machine = "Charge-SOM-DC-ONE"
+        else:
+            machine = "Charge-SOM-unspecified"
     else:
         machine = "Unknown"
 
