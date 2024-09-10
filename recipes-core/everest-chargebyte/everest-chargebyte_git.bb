@@ -26,6 +26,20 @@ EXTRA_OECMAKE += " \
     -Deverest-chargebyte_USE_PYTHON_VENV=OFF \
 "
 
+EVEREST_EXCLUDE_MODULES ??= ""
+
+EVEREST_EXCLUDE_MODULES:chargesom ??= " \
+    CbTarragonDIs \
+    CbTarragonDriver \
+    CbTarragonPlugLock \
+"
+
+EVEREST_EXCLUDE_MODULES:tarragon ??= " \
+    CbChargeSOMDriver \
+"
+
+EXTRA_OECMAKE += "-DEVEREST_EXCLUDE_MODULES='${@";".join(d.getVar('EVEREST_EXCLUDE_MODULES', True).split())}'"
+
 do_install:append() {
     # version_information.txt from multiple repositories are in conflict
     rm -f ${D}${datadir}/everest/version_information.txt
