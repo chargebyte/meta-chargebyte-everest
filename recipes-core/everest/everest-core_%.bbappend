@@ -42,6 +42,9 @@ EVEREST_INCLUDE_MODULES = " \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLUDE_MODULES', True).split())}'"
+# force use of mbedtls (for EvseV2G)
+EXTRA_OECMAKE += "-DUSING_MBED_TLS=ON"
+DEPENDS += "mbedtls"
 
 do_install:append() {
     # cleanup installed config files
