@@ -14,6 +14,7 @@ DEPENDS = " \
     everest-core \
     evcli-native \
     libgpiod \
+    sigslot \
 "
 
 INSANE_SKIP:${PN} = "already-stripped useless-rpaths arch file-rdeps"
