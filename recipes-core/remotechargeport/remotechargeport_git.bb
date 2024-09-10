@@ -10,8 +10,8 @@ SRC_URI = " \
     file://systemaggregatorftpd@.service \
 "
 
-SRCREV = "747fee5698c9d004df668a4c115dc63a06a60789"
-PV = "2024.07.0+git${SRCPV}"
+SRCREV = "2e795b71b79ad43f97256a6730d2c5f6175781f5"
+PV = "2024.08.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
