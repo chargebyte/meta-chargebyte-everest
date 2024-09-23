@@ -5,6 +5,7 @@ SRC_URI += " \
     file://journalctl-alias.sh \
     file://0001-Registered-time_sync_callback-in-OCPP201-module.patch \
     file://0001-API-make-error-history-requirement-optional.patch \
+    file://0001-Make-correct-phase-count-available-in-API \
 "
 
 # don't build/include undesired modules: some of the everest-core modules do not make sense
