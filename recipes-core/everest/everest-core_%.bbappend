@@ -7,6 +7,14 @@ SRC_URI += " \
     file://0001-API-make-error-history-requirement-optional.patch \
 "
 
+# we don't require nodejs-native when we disable javascript modules
+DEPENDS:remove = "nodejs-native"
+
+# globally disable javascript modules for our embedded platforms
+EXTRA_OECMAKE += " \
+    -DEVEREST_ENABLE_JS_SUPPORT=OFF \
+"
+
 # don't build/include undesired modules: some of the everest-core modules do not make sense
 # on our chargebyte embedded platforms, e.g. BSPs for other boards, javascript simulations
 # or similar; so the following list defines which modules we want to have in our standard image
