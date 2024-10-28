@@ -1,9 +1,15 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
+    git://github.com/EVerest/everest-core.git;branch=main;protocol=https;name=iso \
     file://0001-Drop-timestamp-from-logging.patch \
     file://journalctl-alias.sh \
 "
+
+SRCREV_FORMAT = "iso"
+SRCREV_iso = "1e06aaab914d4e65e4b01fd0a7fb13ee0c8d6f21"
+
+DEPENDS += " libiso15118"
 
 # we don't require nodejs-native when we disable javascript modules
 DEPENDS:remove = "nodejs-native"
@@ -28,6 +34,7 @@ EVEREST_INCLUDE_MODULES = " \
     EnergyManager \
     EnergyNode \
     ErrorHistory \
+    Evse15118D20 \
     EvseManager \
     EvseSecurity \
     EvseSlac \
