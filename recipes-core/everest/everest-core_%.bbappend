@@ -42,6 +42,7 @@ EVEREST_INCLUDE_MODULES = " \
     EvSlac \
     GenericPowermeter \
     IMDSimulator \
+    IsoMux \
     LemDCBM400600 \
     OCPP \
     OCPP201 \
