@@ -1,0 +1,25 @@
+From 1847d8943c3fb2f5d63aaea3016398b83878484c Mon Sep 17 00:00:00 2001
+From: Mohannad Oraby <mohannad.oraby@chargebyte.com>
+Date: Tue, 1 Oct 2024 08:49:10 +0200
+Subject: [PATCH] Silent error maybe-uninitialized
+
+Signed-off-by: Mohannad Oraby <mohannad.oraby@chargebyte.com>
+---
+ src/iso15118/CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/iso15118/CMakeLists.txt b/src/iso15118/CMakeLists.txt
+index 88fe10e..40cae8e 100644
+--- a/src/iso15118/CMakeLists.txt
++++ b/src/iso15118/CMakeLists.txt
+@@ -1,5 +1,7 @@
+ find_package(Threads REQUIRED)
+ 
++add_compile_options(-Wno-maybe-uninitialized)
++
+ add_library(iso15118)
+ add_library(iso15118::iso15118 ALIAS iso15118)
+ target_include_directories(iso15118
+-- 
+2.34.1
+
