@@ -4,6 +4,7 @@ SRC_URI += " \
     git://github.com/EVerest/everest-core.git;branch=main;protocol=https;name=iso \
     file://0001-Drop-timestamp-from-logging.patch \
     file://0001-Fix-DCSupplySimulator-initialization-issue.patch \
+    file://0001-Add-command-to-set-current-and-phase-limit-for-EVSE.patch \
     file://journalctl-alias.sh \
 "
 
