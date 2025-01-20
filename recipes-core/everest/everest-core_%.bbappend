@@ -3,6 +3,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI += " \
     git://github.com/EVerest/everest-core.git;branch=main;protocol=https;name=iso \
     file://0001-Drop-timestamp-from-logging.patch \
+    file://0001-Fix-DCSupplySimulator-initialization-issue.patch \
     file://journalctl-alias.sh \
 "
 
