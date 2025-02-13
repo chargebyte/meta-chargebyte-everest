@@ -23,6 +23,7 @@ EVEREST_INCLUDE_MODULES = " \
     Auth \
     DCSupplySimulator \
     DPM1000 \
+    DummyBankSessionTokenProvider \
     DummyTokenProvider \
     DummyTokenProviderManual \
     DummyTokenValidator \
@@ -45,7 +46,7 @@ EVEREST_INCLUDE_MODULES = " \
     PacketSniffer \
     PersistentStore \
     PN532TokenProvider \
-    PowermeterBSM \
+    PN7160TokenProvider \
     SerialCommHub \
     Setup \
     Store \
