@@ -1,0 +1,41 @@
+From 33e48faee051ad156001277df5f31bad4b2152f4 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <michael.heimpold@chargebyte.com>
+Date: Thu, 20 Feb 2025 11:32:01 +0100
+Subject: [PATCH] Pretty print none-info messages
+
+Prefixing warnings, errors and critical messages with function name etc.
+makes only sense during development, but generates log noise for production
+environments. So let's strip these messages to the same format as info.
+
+Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+---
+ include/everest/logging.hpp | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/include/everest/logging.hpp b/include/everest/logging.hpp
+index 200c208..c5df17e 100644
+--- a/include/everest/logging.hpp
++++ b/include/everest/logging.hpp
+@@ -49,16 +49,13 @@ std::string trace();
+     BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::info)
+ 
+ #define EVLOG_warning                                                                                                  \
+-    BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::warning)                                                 \
+-        << boost::log::BOOST_LOG_VERSION_NAMESPACE::add_value("function", BOOST_CURRENT_FUNCTION)
++    BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::warning)
+ 
+ #define EVLOG_error                                                                                                    \
+-    BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::error)                                                   \
+-        << boost::log::BOOST_LOG_VERSION_NAMESPACE::add_value("function", BOOST_CURRENT_FUNCTION)
++    BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::error)
+ 
+ #define EVLOG_critical                                                                                                 \
+-    BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::critical)                                                \
+-        << boost::log::BOOST_LOG_VERSION_NAMESPACE::add_value("function", BOOST_CURRENT_FUNCTION)
++    BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::critical)
+ // clang-format on
+ 
+ #define EVLOG_AND_THROW(ex)                                                                                            \
+-- 
+2.34.1
+
