@@ -3,8 +3,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
 
-SRCREV = "7d00743137c5d4f5ad1c8de34b3448736d0eb5b1"
-PV = "0.18.0+git${SRCPV}"
+SRCREV = "d1ed51a51797d71cf61dda6f7af4f5951434529a"
+PV = "0.19.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
@@ -15,6 +15,7 @@ DEPENDS = " \
     evcli-native \
     libgpiod \
     sigslot \
+    systemd \
 "
 
 INSANE_SKIP:${PN} = "already-stripped useless-rpaths arch file-rdeps"
