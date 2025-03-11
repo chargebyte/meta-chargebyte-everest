@@ -1,17 +1,12 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
-    git://github.com/EVerest/everest-core.git;branch=main;protocol=https;name=iso \
     file://0001-Drop-timestamp-from-logging.patch \
     file://0001-Fix-DCSupplySimulator-initialization-issue.patch \
     file://0001-Add-command-to-set-current-and-phase-limit-for-EVSE.patch \
+    file://pr-everest-core-1069-adding-SLAC-retries.patch \
     file://journalctl-alias.sh \
 "
-
-SRCREV_FORMAT = "iso"
-SRCREV_iso = "1e06aaab914d4e65e4b01fd0a7fb13ee0c8d6f21"
-
-DEPENDS += " libiso15118"
 
 # we don't require nodejs-native when we disable javascript modules
 DEPENDS:remove = "nodejs-native"
@@ -29,6 +24,7 @@ EVEREST_INCLUDE_MODULES = " \
     Auth \
     DCSupplySimulator \
     DPM1000 \
+    DummyBankSessionTokenProvider \
     DummyTokenProvider \
     DummyTokenProviderManual \
     DummyTokenValidator \
@@ -51,7 +47,7 @@ EVEREST_INCLUDE_MODULES = " \
     PacketSniffer \
     PersistentStore \
     PN532TokenProvider \
-    PowermeterBSM \
+    PN7160TokenProvider \
     SerialCommHub \
     Setup \
     Store \
@@ -59,9 +55,6 @@ EVEREST_INCLUDE_MODULES = " \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLUDE_MODULES', True).split())}'"
-# force use of mbedtls (for EvseV2G)
-EXTRA_OECMAKE += "-DUSING_MBED_TLS=ON"
-DEPENDS += "mbedtls"
 
 do_install:append() {
     # cleanup installed config files

@@ -1,9 +1,5 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI += " \
-    file://0001-Fix-flush-MQTT-connect-message-immediately.patch \
-"
-
 # we don't require nodejs-native when we disable javascript modules
 DEPENDS:remove = "nodejs-native"
 
