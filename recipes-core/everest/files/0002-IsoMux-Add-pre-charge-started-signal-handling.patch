@@ -1,0 +1,35 @@
+From 72f799aec307e14edbfde76a2175c6367a9c6844 Mon Sep 17 00:00:00 2001
+From: Moritz Barsnick <moritz.barsnick@chargebyte.com>
+Date: Thu, 13 Mar 2025 15:46:56 +0100
+Subject: [PATCH 2/2] IsoMux: Add pre-charge started signal handling
+
+Signed-off-by: Moritz Barsnick <moritz.barsnick@chargebyte.com>
+---
+ modules/IsoMux/charger/ISO15118_chargerImpl.cpp | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/modules/IsoMux/charger/ISO15118_chargerImpl.cpp b/modules/IsoMux/charger/ISO15118_chargerImpl.cpp
+index 53a045b7..65c45a4b 100644
+--- a/modules/IsoMux/charger/ISO15118_chargerImpl.cpp
++++ b/modules/IsoMux/charger/ISO15118_chargerImpl.cpp
+@@ -95,6 +95,17 @@ void ISO15118_chargerImpl::init() {
+         }
+     });
+ 
++    mod->r_iso2->subscribe_start_pre_charge([this]() {
++        if (not mod->selected_iso20()) {
++            publish_start_pre_charge(nullptr);
++        }
++    });
++    mod->r_iso20->subscribe_start_pre_charge([this]() {
++        if (mod->selected_iso20()) {
++            publish_start_pre_charge(nullptr);
++        }
++    });
++
+     mod->r_iso2->subscribe_dc_open_contactor([this]() {
+         if (not mod->selected_iso20()) {
+             publish_dc_open_contactor(nullptr);
+-- 
+2.34.1
+
