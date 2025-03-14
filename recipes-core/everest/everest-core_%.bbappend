@@ -37,11 +37,13 @@ EVEREST_INCLUDE_MODULES = " \
     EvseV2G \
     EvSlac \
     GenericPowermeter \
+    IsabellenhuetteIemDcr \
     IMDSimulator \
     IsoMux \
     LemDCBM400600 \
     OCPP \
     OCPP201 \
+    OVMSimulator \
     PacketSniffer \
     PersistentStore \
     PN532TokenProvider \
@@ -50,6 +52,7 @@ EVEREST_INCLUDE_MODULES = " \
     Setup \
     Store \
     System \
+    YetiSimulator \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLUDE_MODULES', True).split())}'"
