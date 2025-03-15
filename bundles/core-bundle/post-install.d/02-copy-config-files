@@ -25,6 +25,7 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	/etc/ssh/ssh_host_rsa_key
 	/etc/ssh/ssh_host_rsa_key.pub
 	/home/root/.ssh
+	/home/root/.config
 	/etc/systemd/network
 	/etc/hostapd/hostapd.conf
 	EOF
