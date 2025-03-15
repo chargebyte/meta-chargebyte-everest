@@ -30,6 +30,14 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	/etc/hostapd/hostapd.conf
 	EOF
 
+	# we need to check whether we have already a system with usually clean directory
+	# otherwise we would copy over all the undesired standard stuff
+	if [ -f /etc/systemd/system/.keep-during-fw-update ]; then
+		( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+		/etc/systemd/system
+		EOF
+	fi
+
 	# copy /etc/resolv.conf only if it is a plain file and not a link;
 	# copy it also only when not migrating from Debian based OS to Yocto
 	if [ -f /etc/resolv.conf -a ! -L /etc/resolv.conf -a ! -f /etc/debian_version ]; then
