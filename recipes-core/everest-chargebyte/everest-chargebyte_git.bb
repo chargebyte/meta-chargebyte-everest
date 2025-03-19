@@ -3,8 +3,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
 
-SRCREV = "d1ed51a51797d71cf61dda6f7af4f5951434529a"
-PV = "0.19.0+git${SRCPV}"
+SRCREV = "e3a1027070284b87daf8152f3692cdbb100309c5"
+PV = "0.20.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
@@ -16,11 +16,14 @@ DEPENDS = " \
     libgpiod \
     sigslot \
     systemd \
+    libsocketcan \
 "
 
 INSANE_SKIP:${PN} = "already-stripped useless-rpaths arch file-rdeps"
+INSANE_SKIP:${PN}-dev = "already-stripped useless-rpaths arch file-rdeps"
 
 FILES:${PN} += "${datadir}/everest/*"
+FILES:${PN}-dev += "${bindir}/dump_infypower_canid"
 
 EXTRA_OECMAKE += " \
     -DDISABLE_EDM=ON \
