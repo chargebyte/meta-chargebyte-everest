@@ -53,7 +53,7 @@ def get_bundlename(d):
         machine = "Tarragon"
     elif d.getVar('MACHINE', True) == "chargesom":
         if d.getVar('SUBMACHINE', True) == "dc-evb":
-            machine = "Charge-SOM-DC-ONE"
+            machine = "Charge-SOM-Single-Channel-DC-Carrier-Board"
         else:
             machine = "Charge-SOM-unspecified"
     else:

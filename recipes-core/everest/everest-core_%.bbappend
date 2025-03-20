@@ -1,6 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
+    file://02-led-boot-notification.conf \
     file://0001-Drop-timestamp-from-logging.patch \
     file://0001-Fix-DCSupplySimulator-initialization-issue.patch \
     file://0001-Add-command-to-set-current-and-phase-limit-for-EVSE.patch \
@@ -71,4 +72,12 @@ do_install:append() {
     # install alias for journalctl convenience
     install -d ${D}${sysconfdir}/profile.d/
     install -m 0644 ${WORKDIR}/journalctl-alias.sh ${D}${sysconfdir}/profile.d/
+
+    # additional systemd configuration for everest.service
+    install -d ${D}${systemd_system_unitdir}/everest.service.d/
+    install -m 0644 ${WORKDIR}/02-led-boot-notification.conf ${D}${systemd_system_unitdir}/everest.service.d/
 }
+
+FILES:${PN} += " \
+    ${systemd_system_unitdir}/everest.service.d/* \
+"
