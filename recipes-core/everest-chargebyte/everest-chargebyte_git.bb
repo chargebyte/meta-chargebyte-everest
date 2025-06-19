@@ -3,8 +3,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
 
-SRCREV = "76c037e7c7fed109847cb244df97bf3de7b50da8"
-PV = "0.21.0+git${SRCPV}"
+SRCREV = "eca40774f7c06e1e19fc2c1ef19fd5fe1bf80c95"
+PV = "0.22.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
@@ -14,6 +14,7 @@ DEPENDS = " \
     everest-core \
     evcli-native \
     libgpiod \
+    ra-utils \
     sigslot \
     systemd \
     libsocketcan \
