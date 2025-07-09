@@ -14,7 +14,7 @@ DEPENDS = " \
     everest-core \
     evcli-native \
     libgpiod \
-    ra-utils \
+    ${@bb.utils.contains("MACHINE", "chargesom", "ra-utils", "", d)} \
     sigslot \
     systemd \
     libsocketcan \
