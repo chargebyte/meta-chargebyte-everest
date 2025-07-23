@@ -34,6 +34,7 @@ EXTRA_OECMAKE += " \
 EVEREST_EXCLUDE_MODULES ??= ""
 
 EVEREST_EXCLUDE_MODULES:chargesom ??= " \
+    CbParsleyDriver \
     CbTarragonDIs \
     CbTarragonDriver \
     CbTarragonPlugLock \
@@ -41,6 +42,14 @@ EVEREST_EXCLUDE_MODULES:chargesom ??= " \
 
 EVEREST_EXCLUDE_MODULES:tarragon ??= " \
     CbChargeSOMDriver \
+    CbParsleyDriver \
+"
+
+EVEREST_EXCLUDE_MODULES:parsley ??= " \
+    CbChargeSOMDriver \
+    CbTarragonDIs \
+    CbTarragonDriver \
+    CbTarragonPlugLock \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_EXCLUDE_MODULES='${@";".join(d.getVar('EVEREST_EXCLUDE_MODULES', True).split())}'"

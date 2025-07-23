@@ -25,6 +25,7 @@ RAUC_BUNDLE_EXTRA_FILES += "post-install.d"
 RAUC_BUNDLE_COMPATIBLE:chargesom ?= "chargebyte Charge SOM"
 RAUC_BUNDLE_COMPATIBLE:evachargese ?= "I2SE EVAcharge SE"
 RAUC_BUNDLE_COMPATIBLE:tarragon ?= "I2SE Tarragon"
+RAUC_BUNDLE_COMPATIBLE:parsley ?= "chargebyte Charge Control Y"
 
 RAUC_BUNDLE_HOOKS[file] = "hooks.sh"
 
@@ -56,6 +57,8 @@ def get_bundlename(d):
             machine = "Charge-SOM-Single-Channel-DC-Carrier-Board"
         else:
             machine = "Charge-SOM-unspecified"
+    elif d.getVar('MACHINE', True) == "parsley":
+        machine = "Parsley"
     else:
         machine = "Unknown"
 
