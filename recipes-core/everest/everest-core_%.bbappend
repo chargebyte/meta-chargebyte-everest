@@ -30,6 +30,8 @@ EVEREST_INCLUDE_MODULES = " \
     EnergyManager \
     EnergyNode \
     ErrorHistory \
+    EvAPI \
+    EvManager \
     Evse15118D20 \
     EvseManager \
     EvseSecurity \
@@ -37,8 +39,8 @@ EVEREST_INCLUDE_MODULES = " \
     EvseV2G \
     EvSlac \
     GenericPowermeter \
-    IsabellenhuetteIemDcr \
     IMDSimulator \
+    IsabellenhuetteIemDcr \
     IsoMux \
     LemDCBM400600 \
     OCPP \
@@ -50,6 +52,7 @@ EVEREST_INCLUDE_MODULES = " \
     PN7160TokenProvider \
     SerialCommHub \
     Setup \
+    StaticISO15118VASProvider \
     Store \
     System \
     YetiSimulator \
