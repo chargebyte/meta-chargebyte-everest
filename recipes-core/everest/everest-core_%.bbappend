@@ -1,3 +1,11 @@
+# TODO: Temporary override to use custom branch/commit.
+#       Remove these lines once the upstream for the json-rpc-api pull request
+#       (https://github.com/EVerest/everest-core/pull/1324) has been merged.
+SRC_URI = "git://github.com/chargebyte/everest-core.git;protocol=https;branch=feature/json-rpc-api-2025.8.0 \
+           file://everest.service \
+           "
+SRCREV = "be8125e647b27ccb9e08923210f872be608102af"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
@@ -8,6 +16,9 @@ SRC_URI += " \
 
 # we don't require nodejs-native when we disable javascript modules
 DEPENDS:remove = "nodejs-native"
+
+# add RpcApi dependency
+DEPENDS += "json-rpc-cxx"
 
 # globally disable javascript modules for our embedded platforms
 EXTRA_OECMAKE += " \
@@ -50,6 +61,7 @@ EVEREST_INCLUDE_MODULES = " \
     PersistentStore \
     PN532TokenProvider \
     PN7160TokenProvider \
+    RpcApi \
     SerialCommHub \
     Setup \
     StaticISO15118VASProvider \
