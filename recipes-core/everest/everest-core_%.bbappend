@@ -29,8 +29,11 @@ EXTRA_OECMAKE += " \
 # on our chargebyte embedded platforms, e.g. BSPs for other boards, javascript simulations
 # or similar; so the following list defines which modules we want to have in our standard image
 EVEREST_INCLUDE_MODULES = " \
+    Acrel_DJSF1352_RN \
     API \
     Auth \
+    Bender_isoCHA425HV \
+    ChargerInfo \
     DCSupplySimulator \
     DPM1000 \
     DummyBankSessionTokenProvider \
@@ -67,6 +70,8 @@ EVEREST_INCLUDE_MODULES = " \
     StaticISO15118VASProvider \
     Store \
     System \
+    UUGreenPower_UR1000X0 \
+    YamlStore \
     YetiSimulator \
 "
 
