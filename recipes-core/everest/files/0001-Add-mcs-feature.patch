@@ -1,0 +1,55 @@
+From 836babeb62a4560109b8cb83fed61f06b76268b1 Mon Sep 17 00:00:00 2001
+From: Martin Lukas <martin.lukas@chargebyte.com>
+Date: Mon, 22 Sep 2025 09:21:02 +0200
+Subject: [PATCH] Add mcs feature
+
+Signed-off-by: Martin Lukas <martin.lukas@chargebyte.com>
+---
+ include/ocpp/v2/ocpp_enums.hpp |  2 ++
+ lib/ocpp/v2/ocpp_enums.cpp     | 10 ++++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/include/ocpp/v2/ocpp_enums.hpp b/include/ocpp/v2/ocpp_enums.hpp
+index 7764fd79..88425942 100644
+--- a/include/ocpp/v2/ocpp_enums.hpp
++++ b/include/ocpp/v2/ocpp_enums.hpp
+@@ -142,6 +142,8 @@ enum class EnergyTransferModeEnum {
+     DC_ACDP,
+     DC_ACDP_BPT,
+     WPT,
++    MCS,
++    MCS_BPT,
+ };
+ 
+ namespace conversions {
+diff --git a/lib/ocpp/v2/ocpp_enums.cpp b/lib/ocpp/v2/ocpp_enums.cpp
+index 06bcbe6f..d0598729 100644
+--- a/lib/ocpp/v2/ocpp_enums.cpp
++++ b/lib/ocpp/v2/ocpp_enums.cpp
+@@ -272,6 +272,10 @@ std::string energy_transfer_mode_enum_to_string(EnergyTransferModeEnum e) {
+         return "DC_ACDP_BPT";
+     case EnergyTransferModeEnum::WPT:
+         return "WPT";
++    case EnergyTransferModeEnum::MCS:
++        return "MCS";
++    case EnergyTransferModeEnum::MCS_BPT:
++        return "MCS_BPT";
+     }
+ 
+     throw EnumToStringException{e, "EnergyTransferModeEnum"};
+@@ -311,6 +315,12 @@ EnergyTransferModeEnum string_to_energy_transfer_mode_enum(const std::string& s)
+     if (s == "WPT") {
+         return EnergyTransferModeEnum::WPT;
+     }
++    if (s == "MCS") {
++        return EnergyTransferModeEnum::MCS;
++    }
++    if (s == "MCS_BPT") {
++        return EnergyTransferModeEnum::MCS_BPT;
++    }
+ 
+     throw StringToEnumException{s, "EnergyTransferModeEnum"};
+ }
+-- 
+2.34.1
+
