@@ -4,7 +4,7 @@
 SRC_URI = "git://github.com/chargebyte/everest-core.git;protocol=https;branch=feature/json-rpc-api-2025.8.0 \
            file://everest.service \
            "
-SRCREV = "be8125e647b27ccb9e08923210f872be608102af"
+SRCREV = "07be1e06c43964152a11775d2b22176c00a50f53"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
