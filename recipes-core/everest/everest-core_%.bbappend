@@ -3,8 +3,12 @@
 #       (https://github.com/EVerest/everest-core/pull/1324) has been merged.
 SRC_URI = "git://github.com/chargebyte/everest-core.git;protocol=https;branch=feature/json-rpc-api-2025.8.0 \
            file://everest.service \
-           "
-SRCREV = "07be1e06c43964152a11775d2b22176c00a50f53"
+"
+
+SRC_URI:append:parsley = "file://0001-Adding-MCS-feature.patch \
+"
+
+SRCREV = "14709eefd97811b86882413abf4760b229097066"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
