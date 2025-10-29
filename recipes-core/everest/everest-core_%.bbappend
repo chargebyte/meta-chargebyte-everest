@@ -77,7 +77,6 @@ EVEREST_INCLUDE_MODULES = " \
     System \
     UUGreenPower_UR1000X0 \
     YamlStore \
-    YetiSimulator \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLUDE_MODULES', True).split())}'"
