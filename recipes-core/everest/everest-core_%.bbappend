@@ -16,6 +16,8 @@ SRC_URI += " \
     file://journalctl-alias.sh \
 "
 SRC_URI:append:parsley = "file://0001-Adding-MCS-feature.patch \
+    file://0001-Add-EVTerminationCode.patch \
+    file://0002-Add-response_code.patch \
 "
 
 

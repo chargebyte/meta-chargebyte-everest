@@ -1,0 +1,515 @@
+diff --git a/include/iso15118/session/feedback.hpp b/include/iso15118/session/feedback.hpp
+index 0f519ca..cd4b8ad 100644
+--- a/include/iso15118/session/feedback.hpp
++++ b/include/iso15118/session/feedback.hpp
+@@ -74,6 +74,7 @@ struct Callbacks {
+     std::function<std::optional<dt::ServiceParameterList>(uint16_t)> get_vas_parameters;
+     std::function<void(const dt::VasSelectedServiceList&)> selected_vas_services;
+     std::function<void(const std::string&, const std::string&)> ev_termination;
++    std::function<void(const iso15118::message_20::datatypes::ResponseCode&)> response_code;
+ };
+ 
+ } // namespace feedback
+@@ -100,6 +101,7 @@ public:
+     std::optional<dt::ServiceParameterList> get_vas_parameters(uint16_t) const;
+     void selected_vas_services(const dt::VasSelectedServiceList&) const;
+     void ev_termination(const std::string&, const std::string&) const;
++    void response_code(const iso15118::message_20::datatypes::ResponseCode&) const;
+ 
+ private:
+     feedback::Callbacks callbacks;
+diff --git a/src/iso15118/d20/state/authorization.cpp b/src/iso15118/d20/state/authorization.cpp
+index 61140a9..da1f783 100644
+--- a/src/iso15118/d20/state/authorization.cpp
++++ b/src/iso15118/d20/state/authorization.cpp
+@@ -123,6 +123,7 @@ Result Authorization::feed(Event ev) {
+         const auto res = handle_request(*req, m_ctx.session, authorization_status, timeout_ongoing_reached);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -141,6 +142,8 @@ Result Authorization::feed(Event ev) {
+         m_ctx.respond(res);
+ 
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
++
+         return {};
+     } else {
+         m_ctx.log("expected AuthorizationReq! But code type id: %d", variant->get_type());
+@@ -149,6 +152,7 @@ Result Authorization::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/authorization_setup.cpp b/src/iso15118/d20/state/authorization_setup.cpp
+index 2ac18ad..2bbc70e 100644
+--- a/src/iso15118/d20/state/authorization_setup.cpp
++++ b/src/iso15118/d20/state/authorization_setup.cpp
+@@ -72,6 +72,7 @@ Result AuthorizationSetup::feed(Event ev) {
+         logf_info("Timestamp: %d", req->header.timestamp);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -87,6 +88,7 @@ Result AuthorizationSetup::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -96,6 +98,7 @@ Result AuthorizationSetup::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/dc_cable_check.cpp b/src/iso15118/d20/state/dc_cable_check.cpp
+index 1b6f0da..c1ea8e8 100644
+--- a/src/iso15118/d20/state/dc_cable_check.cpp
++++ b/src/iso15118/d20/state/dc_cable_check.cpp
+@@ -63,6 +63,7 @@ Result DC_CableCheck::feed(Event ev) {
+         const auto res = handle_request(*req, m_ctx.session, cable_check_done);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -79,6 +80,7 @@ Result DC_CableCheck::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -88,6 +90,7 @@ Result DC_CableCheck::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/dc_charge_loop.cpp b/src/iso15118/d20/state/dc_charge_loop.cpp
+index 315a3bd..c0ca3ec 100644
+--- a/src/iso15118/d20/state/dc_charge_loop.cpp
++++ b/src/iso15118/d20/state/dc_charge_loop.cpp
+@@ -223,6 +223,7 @@ Result DC_ChargeLoop::feed(Event ev) {
+         const auto res = handle_request(*req, m_ctx.session);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -251,6 +252,7 @@ Result DC_ChargeLoop::feed(Event ev) {
+                                         m_ctx.session_config.dc_limits, dynamic_parameters);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -272,6 +274,7 @@ Result DC_ChargeLoop::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/dc_charge_parameter_discovery.cpp b/src/iso15118/d20/state/dc_charge_parameter_discovery.cpp
+index a1a054f..98cc8a8 100644
+--- a/src/iso15118/d20/state/dc_charge_parameter_discovery.cpp
++++ b/src/iso15118/d20/state/dc_charge_parameter_discovery.cpp
+@@ -42,6 +42,91 @@ template <> void convert(BPT_DC_ModeRes& out, const d20::DcTransferLimits& in) {
+     }
+ }
+ 
++template <typename DCMode>
++bool handle_compatibility_check(const d20::DcTransferLimits& evse_dc_limits, const DCMode& ev_limits) {
++    // In IEC 61851-23-3 a compatibility check is required
++
++    constexpr auto MAX_VOLTAGE_OFFSET = 50.f;
++    constexpr auto MAX_VOLTAGE_THREASHOLD = 500.f;
++    constexpr auto MAX_VOLTAGE_FACTOR = 1.1f;
++    constexpr auto MAX_POWER_LIMIT = 200000.f;
++    bool compatiblity_flag = true;
++    float ev_max_power;
++    float ev_max_current;
++    float ev_max_voltage;
++
++    if (const auto* mode = std::get_if<DC_ModeReq>(&ev_limits)) {
++        ev_max_power = dt::from_RationalNumber(mode->max_charge_power);
++        ev_max_current = dt::from_RationalNumber(mode->max_charge_current);
++        ev_max_voltage = dt::from_RationalNumber(mode->max_voltage);
++    } else if (const auto* mode = std::get_if<BPT_DC_ModeReq>(&ev_limits)) {
++        ev_max_power = dt::from_RationalNumber(mode->max_charge_power);
++        ev_max_current = dt::from_RationalNumber(mode->max_charge_current);
++        ev_max_voltage = dt::from_RationalNumber(mode->max_voltage);
++    } else {
++        return false;
++    }
++
++    const float evse_max_voltage = dt::from_RationalNumber(evse_dc_limits.voltage.max);
++    const float evse_min_voltage = dt::from_RationalNumber(evse_dc_limits.voltage.min);
++    const float evse_max_current = dt::from_RationalNumber(evse_dc_limits.charge_limits.current.max);
++    const float evse_min_current = dt::from_RationalNumber(evse_dc_limits.charge_limits.current.min);
++    const float evse_max_power = dt::from_RationalNumber(evse_dc_limits.charge_limits.power.max);
++    const float evse_min_power = dt::from_RationalNumber(evse_dc_limits.charge_limits.power.min);
++
++    // CC.5.6 2.a
++    if (ev_max_voltage <= MAX_VOLTAGE_THREASHOLD) {
++        if (evse_max_voltage >
++            std::min({ev_max_voltage + MAX_VOLTAGE_OFFSET, evse_max_voltage, MAX_VOLTAGE_THREASHOLD})) {
++            if (evse_max_voltage > MAX_VOLTAGE_THREASHOLD) {
++                logf_error("EVSE max voltage %.1f V > EV max voltage 500V", evse_max_voltage);
++            } else {
++                logf_error("EVSE max voltage %.1f V > EV max voltage + 50V: %.1f V", evse_max_voltage,
++                           ev_max_voltage + MAX_VOLTAGE_OFFSET);
++            }
++            compatiblity_flag = false;
++        }
++    }
++    if (ev_max_voltage > MAX_VOLTAGE_THREASHOLD) {
++        if (evse_max_voltage > std::min(ev_max_voltage * MAX_VOLTAGE_FACTOR, evse_max_voltage)) {
++            logf_error("EVSE max voltage %.1f V > EV max voltage (> 500 V) multiplied by 1,1: %.1f V", evse_max_voltage,
++                       ev_max_voltage * MAX_VOLTAGE_FACTOR);
++            compatiblity_flag = false;
++        }
++    }
++
++    // CC.5.6 2.b
++    if (evse_max_current > std::min(ev_max_current, evse_max_current)) {
++        logf_error("EVSE max current %.1f A > EV max current %.1f A", evse_max_current, ev_max_current);
++        compatiblity_flag = false;
++    }
++
++    // CC.5.6 2.c
++    float ev_power_max = ev_max_power;
++    if (ev_power_max == 0) {
++        ev_power_max = std::max(ev_max_voltage * ev_max_current, MAX_POWER_LIMIT);
++    }
++    if (evse_max_power > std::min(ev_power_max, evse_max_power)) {
++        logf_error("EVSE max power %.1f W > EV max power %.1f W", evse_max_power, ev_power_max);
++        compatiblity_flag = false;
++    }
++    // CC.5.6 2.d-f here not implemented because we make no difference between CPD and RATED
++    // CC.5.6 2.g
++    if (evse_min_power >= ev_power_max) {
++        logf_error("EVSE min power %.1f W >= EV max power %.1f W!", evse_min_power, ev_max_power);
++        compatiblity_flag = false;
++    }
++    if (evse_min_voltage >= ev_max_voltage) {
++        logf_error("EVSE min voltage %.1f V >= EV max voltage %.1f V!", evse_min_voltage, ev_max_voltage);
++        compatiblity_flag = false;
++    }
++    if (evse_min_current >= ev_max_current) {
++        logf_error("EVSE min current %.1f A >= EV max current %.1f A!", evse_min_current, ev_max_current);
++        compatiblity_flag = false;
++    }
++    return compatiblity_flag;
++}
++
+ message_20::DC_ChargeParameterDiscoveryResponse
+ handle_request(const message_20::DC_ChargeParameterDiscoveryRequest& req, const d20::Session& session,
+                const d20::DcTransferLimits& dc_limits) {
+@@ -82,6 +167,10 @@ handle_request(const message_20::DC_ChargeParameterDiscoveryRequest& req, const
+         return response_with_code(res, dt::ResponseCode::FAILED_WrongChargeParameter);
+     }
+ 
++    // Do compatibility check IEC61851-23-3 CC.5.6
++    if (not handle_compatibility_check(dc_limits, req.transfer_mode))
++        return response_with_code(res, dt::ResponseCode::FAILED_WrongChargeParameter);
++
+     return response_with_code(res, dt::ResponseCode::OK);
+ }
+ 
+@@ -127,6 +216,7 @@ Result DC_ChargeParameterDiscovery::feed(Event ev) {
+         m_ctx.respond(res);
+ 
+         m_ctx.feedback.dc_max_limits(dc_max_limits);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -139,6 +229,7 @@ Result DC_ChargeParameterDiscovery::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -148,6 +239,7 @@ Result DC_ChargeParameterDiscovery::feed(Event ev) {
+         // Sequence Error
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+ 
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/dc_pre_charge.cpp b/src/iso15118/d20/state/dc_pre_charge.cpp
+index 1e63e2e..3b684a4 100644
+--- a/src/iso15118/d20/state/dc_pre_charge.cpp
++++ b/src/iso15118/d20/state/dc_pre_charge.cpp
+@@ -60,6 +60,7 @@ Result DC_PreCharge::feed(Event ev) {
+         m_ctx.feedback.dc_pre_charge_target_voltage(message_20::datatypes::from_RationalNumber(req->target_voltage));
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -73,6 +74,7 @@ Result DC_PreCharge::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -82,6 +84,7 @@ Result DC_PreCharge::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/dc_welding_detection.cpp b/src/iso15118/d20/state/dc_welding_detection.cpp
+index 03a93e4..990430c 100644
+--- a/src/iso15118/d20/state/dc_welding_detection.cpp
++++ b/src/iso15118/d20/state/dc_welding_detection.cpp
+@@ -53,6 +53,7 @@ Result DC_WeldingDetection::feed(Event ev) {
+         const auto res = handle_request(*req, m_ctx.session, present_voltage);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -76,6 +77,7 @@ Result DC_WeldingDetection::feed(Event ev) {
+         }
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         // Todo(sl): Tell the reason why the charger is stopping. Shutdown, Error, etc.
+         if (req->charging_session == message_20::datatypes::ChargingSession::Pause) {
+@@ -98,6 +100,7 @@ Result DC_WeldingDetection::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/power_delivery.cpp b/src/iso15118/d20/state/power_delivery.cpp
+index 418e832..564af26 100644
+--- a/src/iso15118/d20/state/power_delivery.cpp
++++ b/src/iso15118/d20/state/power_delivery.cpp
+@@ -62,6 +62,7 @@ Result PowerDelivery::feed(Event ev) {
+         m_ctx.feedback.dc_pre_charge_target_voltage(dt::from_RationalNumber(req->target_voltage));
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -77,6 +78,7 @@ Result PowerDelivery::feed(Event ev) {
+         const auto& res = handle_request(*req, m_ctx.session);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -91,6 +93,7 @@ Result PowerDelivery::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/schedule_exchange.cpp b/src/iso15118/d20/state/schedule_exchange.cpp
+index a14f4f4..283154a 100644
+--- a/src/iso15118/d20/state/schedule_exchange.cpp
++++ b/src/iso15118/d20/state/schedule_exchange.cpp
+@@ -179,6 +179,7 @@ Result ScheduleExchange::feed(Event ev) {
+             handle_request(*req, m_ctx.session, max_charge_power, dynamic_parameters, timeout_ongoing_reached);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -197,6 +198,7 @@ Result ScheduleExchange::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -206,6 +208,7 @@ Result ScheduleExchange::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/service_detail.cpp b/src/iso15118/d20/state/service_detail.cpp
+index ee8609f..46ac403 100644
+--- a/src/iso15118/d20/state/service_detail.cpp
++++ b/src/iso15118/d20/state/service_detail.cpp
+@@ -214,6 +214,7 @@ Result ServiceDetail::feed(Event ev) {
+         const auto res = handle_request(*req, m_ctx.session, m_ctx.session_config, custom_vas_parameters);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -226,6 +227,7 @@ Result ServiceDetail::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -235,6 +237,7 @@ Result ServiceDetail::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/service_discovery.cpp b/src/iso15118/d20/state/service_discovery.cpp
+index d1c9191..a1adc4c 100644
+--- a/src/iso15118/d20/state/service_discovery.cpp
++++ b/src/iso15118/d20/state/service_discovery.cpp
+@@ -137,6 +137,7 @@ Result ServiceDiscovery::feed(Event ev) {
+                            m_ctx.session_config.supported_vas_services, m_ctx.session_ev_info.ev_energy_services);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -149,6 +150,7 @@ Result ServiceDiscovery::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -158,6 +160,7 @@ Result ServiceDiscovery::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/service_selection.cpp b/src/iso15118/d20/state/service_selection.cpp
+index c6399f2..d42bea4 100644
+--- a/src/iso15118/d20/state/service_selection.cpp
++++ b/src/iso15118/d20/state/service_selection.cpp
+@@ -184,6 +184,7 @@ Result ServiceSelection::feed(Event ev) {
+         }
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (res.response_code >= dt::ResponseCode::FAILED) {
+             m_ctx.session_stopped = true;
+@@ -200,6 +201,7 @@ Result ServiceSelection::feed(Event ev) {
+ 
+         m_ctx.respond(res);
+         m_ctx.session_stopped = true;
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         return {};
+     } else {
+@@ -209,6 +211,7 @@ Result ServiceSelection::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/session_setup.cpp b/src/iso15118/d20/state/session_setup.cpp
+index ab1aa8a..78ec064 100644
+--- a/src/iso15118/d20/state/session_setup.cpp
++++ b/src/iso15118/d20/state/session_setup.cpp
+@@ -129,6 +129,7 @@ Result SessionSetup::feed(Event ev) {
+         const auto res = handle_request(*req, m_ctx.session, evse_id, new_session);
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         if (not new_session) {
+             const auto& selected_services = m_ctx.session.get_selected_services();
+@@ -154,6 +155,7 @@ Result SessionSetup::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/d20/state/session_stop.cpp b/src/iso15118/d20/state/session_stop.cpp
+index 2dc38fd..d2de6c2 100644
+--- a/src/iso15118/d20/state/session_stop.cpp
++++ b/src/iso15118/d20/state/session_stop.cpp
+@@ -60,6 +60,7 @@ Result SessionStop::feed(Event ev) {
+         }
+ 
+         m_ctx.respond(res);
++        m_ctx.feedback.response_code(res.response_code);
+ 
+         // Todo(sl): Tell the reason why the charger is stopping. Shutdown, Error, etc.
+         if (req->charging_session == message_20::datatypes::ChargingSession::Pause) {
+@@ -82,6 +83,7 @@ Result SessionStop::feed(Event ev) {
+         const message_20::Type req_type = variant->get_type();
+         send_sequence_error(req_type, m_ctx);
+ 
++        m_ctx.feedback.response_code(dt::ResponseCode::FAILED_SequenceError);
+         m_ctx.session_stopped = true;
+         return {};
+     }
+diff --git a/src/iso15118/session/feedback.cpp b/src/iso15118/session/feedback.cpp
+index 3746d1d..093072c 100644
+--- a/src/iso15118/session/feedback.cpp
++++ b/src/iso15118/session/feedback.cpp
+@@ -60,6 +60,10 @@ void Feedback::ev_termination(const std::string& ev_termination_code,
+     call_if_available(callbacks.ev_termination, ev_termination_code, ev_termination_explanation);
+ }
+ 
++void Feedback::response_code(const iso15118::message_20::datatypes::ResponseCode& code) const {
++    call_if_available(callbacks.response_code, code);
++}
++
+ std::optional<dt::ServiceParameterList> Feedback::get_vas_parameters(uint16_t vas_id) const {
+ 
+     logf_warning("Caution: This feedback call can block the entire state machine");
