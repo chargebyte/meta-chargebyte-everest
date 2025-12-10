@@ -33,6 +33,12 @@ EXTRA_OECMAKE += " \
     -DEVEREST_ENABLE_JS_SUPPORT=OFF \
 "
 
+# we don't build bring up modules
+DEPENDS:remove = "ftxui"
+EXTRA_OECMAKE += " \
+    -DEVEREST_EXCLUDE_DEPENDENCIES='ftxui' \
+"
+
 # don't build/include undesired modules: some of the everest-core modules do not make sense
 # on our chargebyte embedded platforms, e.g. BSPs for other boards, javascript simulations
 # or similar; so the following list defines which modules we want to have in our standard image
@@ -87,6 +93,9 @@ EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLU
 do_install:append() {
     # cleanup installed config files
     rm -rf ${D}${sysconfdir}/everest/config*.yaml
+
+    # remove bring-up stuff
+    rm -rf ${D}${sysconfdir}/everest/bringup
 
     # create persistent state directory
     install -d -m 0755 ${D}${localstatedir}/lib/everest
