@@ -12,7 +12,6 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI += " \
     file://02-led-boot-notification.conf \
     file://0001-Drop-timestamp-from-logging.patch \
-    file://0001-EvseV2G-restore-ISO-15118-2-supportedAppProtocolRes-.patch \
     file://journalctl-alias.sh \
 "
 SRC_URI:append:parsley = "file://0001-Adding-MCS-feature.patch \
