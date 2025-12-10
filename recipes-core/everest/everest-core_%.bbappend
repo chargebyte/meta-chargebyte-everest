@@ -43,13 +43,15 @@ EXTRA_OECMAKE += " \
 # on our chargebyte embedded platforms, e.g. BSPs for other boards, javascript simulations
 # or similar; so the following list defines which modules we want to have in our standard image
 EVEREST_INCLUDE_MODULES = " \
-    Acrel_DJSF1352_RN \
     API \
+    AST_DC650 \
+    Acrel_DJSF1352_RN \
     Auth \
     Bender_isoCHA425HV \
     ChargerInfo \
     DCSupplySimulator \
     DPM1000 \
+    DZG_GSH01 \
     DummyBankSessionTokenProvider \
     DummyTokenProvider \
     DummyTokenProviderManual \
@@ -60,24 +62,30 @@ EVEREST_INCLUDE_MODULES = " \
     ErrorHistory \
     EvAPI \
     EvManager \
+    EvSlac \
     Evse15118D20 \
     EvseManager \
     EvseSecurity \
     EvseSlac \
     EvseV2G \
-    EvSlac \
     GenericPowermeter \
+    Huawei_R100040Gx \
     IMDSimulator \
+    InfyPower \
+    InfyPower_BEG1K075G \
     IsabellenhuetteIemDcr \
     IsoMux \
     LemDCBM400600 \
+    Linux_Systemd_Rauc \
+    LocalAllowlistTokenValidator \
+    NxpNfcFrontendTokenProvider \
     OCPP \
     OCPP201 \
     OVMSimulator \
-    PacketSniffer \
-    PersistentStore \
     PN532TokenProvider \
     PN7160TokenProvider \
+    PacketSniffer \
+    PersistentStore \
     RpcApi \
     SerialCommHub \
     Setup \
@@ -85,6 +93,7 @@ EVEREST_INCLUDE_MODULES = " \
     Store \
     System \
     UUGreenPower_UR1000X0 \
+    Winline \
     YamlStore \
 "
 
