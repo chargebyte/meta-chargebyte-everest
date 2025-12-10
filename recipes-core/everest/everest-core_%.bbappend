@@ -110,6 +110,7 @@ do_install:append() {
 
     # remove unneeded files from image
     rm -rf ${D}${datadir}/everest/docker
+    rm -rf ${D}${sysconfdir}/everest/run_tmux_helper.sh
 
     # install alias for journalctl convenience
     install -d ${D}${sysconfdir}/profile.d/
