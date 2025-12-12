@@ -11,7 +11,6 @@ RDEPENDS:${PN} = " \
     boost-program-options \
     everest-chargebyte \
     everest-core \
-    everest-framework \
     remotechargeport \
     mosquitto \
     openssl-bin \
