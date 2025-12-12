@@ -7,6 +7,10 @@ SRC_URI = "git://github.com/chargebyte/everest-core.git;protocol=https;branch=fe
 
 SRCREV = "14709eefd97811b86882413abf4760b229097066"
 
+EXTRA_OECMAKE += " \
+  -DFRAMEWORK_INSTALL=ON \
+"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
