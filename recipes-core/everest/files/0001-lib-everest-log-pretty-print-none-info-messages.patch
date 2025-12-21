@@ -1,22 +1,23 @@
-From 33e48faee051ad156001277df5f31bad4b2152f4 Mon Sep 17 00:00:00 2001
-From: Michael Heimpold <michael.heimpold@chargebyte.com>
-Date: Thu, 20 Feb 2025 11:32:01 +0100
-Subject: [PATCH] Pretty print none-info messages
+From c7845860bc804f0d6bffd6e05baac171310d2051 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold michael.heimpold@chargebyte.com
+Date: Sun, 21 Dec 2025 21:44:20 +0100
+Subject: [PATCH] lib/everest/log: pretty print none-info messages
 
 Prefixing warnings, errors and critical messages with function name etc.
 makes only sense during development, but generates log noise for production
 environments. So let's strip these messages to the same format as info.
 
 Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+Upstream-Status: Inappropriate [chargebyte specific configuration]
 ---
- include/everest/logging.hpp | 9 +++------
+ lib/everest/log/include/everest/logging.hpp | 9 +++------
  1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/include/everest/logging.hpp b/include/everest/logging.hpp
-index 200c208..c5df17e 100644
---- a/include/everest/logging.hpp
-+++ b/include/everest/logging.hpp
-@@ -49,16 +49,13 @@ std::string trace();
+diff --git a/lib/everest/log/include/everest/logging.hpp b/lib/everest/log/include/everest/logging.hpp
+index cf471b385aee..7958f96292ee 100644
+--- a/lib/everest/log/include/everest/logging.hpp
++++ b/lib/everest/log/include/everest/logging.hpp
+@@ -56,16 +56,13 @@ std::string trace();
      BOOST_LOG_SEV(::global_logger::get(), ::Everest::Logging::info)
  
  #define EVLOG_warning                                                                                                  \
