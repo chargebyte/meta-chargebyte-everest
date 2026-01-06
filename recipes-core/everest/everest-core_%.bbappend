@@ -1,12 +1,3 @@
-# TODO: Temporary override to use custom branch/commit.
-#       Remove these lines once the upstream for the json-rpc-api pull request
-#       (https://github.com/EVerest/everest-core/pull/1324) has been merged.
-SRC_URI = "git://github.com/chargebyte/everest-core.git;protocol=https;branch=feature/json-rpc-api-2025.8.0 \
-           file://everest.service \
-"
-
-SRCREV = "14709eefd97811b86882413abf4760b229097066"
-
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
@@ -15,12 +6,6 @@ SRC_URI += " \
     file://0001-lib-everest-log-pretty-print-none-info-messages.patch \
     file://journalctl-alias.sh \
 "
-SRC_URI:append:parsley = "file://0001-Adding-MCS-feature.patch \
-    file://0001-Add-EVTerminationCode.patch \
-    file://0002-Add-response_code.patch \
-    file://0001-Fix-Authentication-after-plugin.patch \
-"
-
 
 # we don't require nodejs-native when we disable javascript modules
 DEPENDS:remove = "nodejs-native"
