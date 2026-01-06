@@ -1,3 +1,8 @@
+# When switching to a specific branch/remote of everest core, do that by
+# choosing the meta-everest layer from that branch.
+SRC_URI += "file://everest.service \
+"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
@@ -5,17 +10,6 @@ SRC_URI += " \
     file://0001-Drop-timestamp-from-logging.patch \
     file://0001-lib-everest-log-pretty-print-none-info-messages.patch \
     file://journalctl-alias.sh \
-"
-
-# we don't require nodejs-native when we disable javascript modules
-DEPENDS:remove = "nodejs-native"
-
-# add RpcApi dependency
-DEPENDS += "json-rpc-cxx"
-
-# globally disable javascript modules for our embedded platforms
-EXTRA_OECMAKE += " \
-    -DEVEREST_ENABLE_JS_SUPPORT=OFF \
 "
 
 # we don't build bring up modules

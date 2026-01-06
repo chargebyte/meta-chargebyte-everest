@@ -12,5 +12,6 @@ This layer depends on::
   URI: https://github.com/chargebyte/meta-chargebyte.git
   branch: kirkstone
 
-  URI: https://github.com/EVerest/meta-everest.git
-  branch: kirkstone
+  URI: https://github.com/EVerest/everest-core.git
+  branch: main
+  directory: yocto/kirkstone/meta-everest
