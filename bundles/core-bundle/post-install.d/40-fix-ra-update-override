@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# This script migrates ra-update overrides.
+#
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+BUNDLE_MOUNT_POINT="$3"
+
+if [ "$SLOT_CLASS" = "rootfs" ]; then
+	# check whether an override (without instances) was installed
+	# (as required by parsley boards < V0R5a) - if so, convert it
+	# to an instance override;
+	# it relies on the config file migration done in 02-copy-config-files
+	if [ -d "$SLOT_MOUNT_POINT/etc/systemd/system/ra-update.service.d" ] && \
+	   [ -d "$SLOT_MOUNT_POINT/lib/systemd/system/ra-update@ttyLP2.service.d" ]; then
+		mv "$SLOT_MOUNT_POINT/etc/systemd/system/ra-update.service.d" \
+		   "$SLOT_MOUNT_POINT/etc/systemd/system/ra-update@ttyLP2.service.d"
+	fi
+fi
