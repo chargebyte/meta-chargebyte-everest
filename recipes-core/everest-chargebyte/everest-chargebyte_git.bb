@@ -3,8 +3,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
 
-SRCREV = "dab0acb77f28f0774fb4ea14f934db88019b4d02"
-PV = "0.26.0+git${SRCPV}"
+SRCREV = "8dec0671652329d1cca10a97e0ac6d5c5f3f5fe2"
+PV = "0.27.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
