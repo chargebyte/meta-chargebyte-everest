@@ -1,10 +1,3 @@
-# Switch to chargebyte specific release branch with all additional fixes and not-yet mainlined features,
-# e.g. MCS support, JsonRPCAPI, Fake DC and similar
-SRC_URI = "git://github.com/chargebyte/everest-core.git;protocol=https;branch=chargebyte-preview \
-           file://everest.service \
-"
-SRCREV = "${AUTOREV}"
-
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += " \
