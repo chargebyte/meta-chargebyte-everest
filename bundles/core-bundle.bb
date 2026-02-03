@@ -20,6 +20,8 @@ SRC_URI += " \
     file://post-install.d \
 "
 
+DEPENDS += "e2fsprogs-native"
+
 RAUC_BUNDLE_EXTRA_FILES += "post-install.d"
 
 RAUC_BUNDLE_COMPATIBLE:chargesom ?= "chargebyte Charge SOM"
@@ -44,9 +46,62 @@ RAUC_SLOT_customerfs[hooks] = "post-install"
 
 BUNDLE_EXTENSION ?= ".image"
 
-def get_bundlename(d):
+
+# Helper function for reading the system version from the rootfs
+# file /usr/share/secc/VERSION.
+def _read_version_from_rootfs(d):
+    import glob
+    import os
+    import subprocess
+
+    deploy_dir = d.getVar("DEPLOY_DIR_IMAGE")
+    machine = d.getVar("MACHINE")
+    image_name = d.getVar("RAUC_SLOT_rootfs")
+    fstype = d.getVar("RAUC_IMAGE_FSTYPE")
+
+    candidates = [
+        f"{deploy_dir}/{image_name}-{machine}.{fstype}",
+        f"{deploy_dir}/{image_name}-{machine}.rootfs.{fstype}",
+        f"{deploy_dir}/{image_name}.{fstype}",
+    ] + glob.glob(f"{deploy_dir}/{image_name}-*.{fstype}")
+
+    image_path = next((p for p in candidates if os.path.exists(p)), None)
+    if not image_path:
+        bb.warn("RAUC: could not locate rootfs image to read /usr/share/secc/VERSION")
+        return None
+
+    try:
+        return subprocess.check_output(
+            ["debugfs", "-R", "cat /usr/share/secc/VERSION", image_path],
+            text=True,
+        ).strip() or None
+    except Exception as exc:
+        bb.warn(f"RAUC: failed to read VERSION from {image_path}: {exc}")
+        return None
+
+
+# Helper function for exporting the RAUC_BUNDLE_VERSION and BUNDLE_NAME to the
+# environment before a bitbake build step.
+def _update_bundle_metadata(d):
+    version = _read_version_from_rootfs(d)
+    if version:
+        d.setVar("RAUC_BUNDLE_VERSION", version)
+        bb.note(f"RAUC: set RAUC_BUNDLE_VERSION to '{version}' from rootfs")
+    else:
+        bb.warn("RAUC: /usr/share/secc/VERSION is empty; leaving RAUC_BUNDLE_VERSION unchanged")
+
+    bundle_name = _get_bundlename(d)
+    d.setVar("BUNDLE_NAME", bundle_name)
+    bb.note(f"RAUC: using bundle name '{bundle_name}'")
+
+
+# Helper function in order to get the bundle name depending on MACHINE,
+# SUBMACHINE and CUSTOMER definition of this image. The system version
+# will be added into the final image name too.
+def _get_bundlename(d):
     from datetime import datetime
     ts = datetime.now().strftime("%Y-%m-%d-%H%M")
+    version = d.getVar('RAUC_BUNDLE_VERSION') or d.getVar('PV') or "unknown"
 
     if d.getVar('MACHINE', True) == "evachargese":
         machine = "EVAchargeSE"
@@ -67,6 +122,19 @@ def get_bundlename(d):
     else:
         customer = ""
 
-    return "EVerest-Firmware_%s%s_%s" % (machine, customer, ts)
+    return "EVerest-Firmware_%s%s_%s_%s" % (machine, customer, version, ts)
 
-BUNDLE_NAME ?= "${@get_bundlename(d)}"
+
+# Bitbake pre function
+python rauc_update_bundle_metadata() {
+    _update_bundle_metadata(d)
+}
+
+# The environment will not be kept from one build step to an other.
+# We need to export the BUNDLE_NAME and RAUC_BUNDLE_VERSION before
+# each step where they are required.
+
+do_configure[prefuncs] += "rauc_update_bundle_metadata "
+do_deploy[prefuncs] += "rauc_update_bundle_metadata "
+
+BUNDLE_NAME ?= "${@_get_bundlename(d)}"
