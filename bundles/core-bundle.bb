@@ -46,6 +46,12 @@ RAUC_SLOT_customerfs[hooks] = "post-install"
 
 BUNDLE_EXTENSION ?= ".image"
 
+# Important: Using the verity bundle format requires the dm-verity features being enabled in
+# the running system kernel. If they are not supported yet, update the system using a plain
+# bundle with the kernel features enabled, followed by an update using the new verity format.
+# https://rauc.readthedocs.io/en/latest/integration.html#bundle-format-migration
+RAUC_BUNDLE_FORMAT = "verity"
+
 
 # Helper function for reading the system version from the rootfs
 # file /usr/share/secc/VERSION.
