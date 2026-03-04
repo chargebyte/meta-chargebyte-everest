@@ -17,6 +17,7 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	/etc/everest/config.yaml
 	/etc/everest/user-config
 	/etc/everest/ocpp-config.json
+	/etc/everest/default_logging.cfg
 	/etc/everest/certs
 	/var/lib/everest
 	EOF
