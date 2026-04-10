@@ -4,24 +4,63 @@
 # to the updated partition (new system).
 #
 
+set -e
+
 SLOT_CLASS="$1"
 SLOT_MOUNT_POINT="$2"
 BUNDLE_MOUNT_POINT="$3"
+MIGRATION_VERSION=1
 
-if [ "$SLOT_CLASS" = "rootfs" ]; then
-	# source helper
-	. "$BUNDLE_MOUNT_POINT/post-install.d/00-tar-helper"
+copy_directory_contents() {
+	SOURCE_DIR="$1"
+	TARGET_DIR="$2"
 
-	# Make sure the daemon is not running before copying the data to prevent data loss
-	NYMEAD_STATUS="$(systemctl is-active nymead)"
-	if [ "$NYMEAD_STATUS" = "active" ]; then
-		systemctl stop nymead
+	if [ ! -d "$SOURCE_DIR" ]; then
+		return 0
 	fi
 
-	# Copy settings and data if they are present
-	( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
-	/etc/nymea
-	/var/lib/nymea
-	/var/cache/nymea
-	EOF
+	mkdir -p "$TARGET_DIR"
+	cp -a "$SOURCE_DIR"/. "$TARGET_DIR"/
+}
+
+# Exit with no error if this is not the rootfs slot class
+[ "$SLOT_CLASS" = "rootfs" ] || exit 0
+
+# source helper
+. "$BUNDLE_MOUNT_POINT/post-install.d/00-tar-helper"
+
+# Make sure the daemon is not running before copying the data to prevent data loss
+if systemctl is-active --quiet nymead; then
+	systemctl stop nymead
 fi
+
+# Copy settings and data if they are present. Note: /etc/nymea might already be gone
+COPY_PATHS="
+/var/lib/nymea
+/var/cache/nymea
+"
+if [ -d /etc/nymea ]; then
+	COPY_PATHS="$COPY_PATHS /etc/nymea"
+fi
+
+( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
+$COPY_PATHS
+EOF
+
+# Configuration migration since nymead version 1.15.0:
+# - /etc/nymea is no longer used on the target system.
+# - All legacy data from /etc/nymea now belongs in /var/lib/nymea.
+# - Default configuration used to seed the system after a factory reset
+#   is stored in /usr/share/nymea/defaults.
+TARGET_NYMEA_ETC="$SLOT_MOUNT_POINT/etc/nymea"
+TARGET_NYMEA_LIB="$SLOT_MOUNT_POINT/var/lib/nymea"
+TARGET_MIGRATION_MARKER="$TARGET_NYMEA_LIB/.migration-version"
+if [ -f "$TARGET_MIGRATION_MARKER" ]; then
+	rm -rf "$TARGET_NYMEA_ETC"
+	exit 0
+fi
+
+mkdir -p "$TARGET_NYMEA_LIB"
+copy_directory_contents /etc/nymea "$TARGET_NYMEA_LIB"
+rm -rf "$TARGET_NYMEA_ETC"
+printf '%s\n' "$MIGRATION_VERSION" > "$TARGET_MIGRATION_MARKER"
