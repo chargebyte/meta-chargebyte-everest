@@ -1,6 +1,7 @@
 # When switching to a specific branch/remote of everest core, do that by
 # choosing the meta-everest layer from that branch.
 SRC_URI += "file://everest.service \
+            ${@bb.utils.contains('MACHINE', 'parsley', 'file://0001-fix-libiso15118-Evse15118D20-properly-terminate-SDP-.patch', '', d)} \
 "
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
