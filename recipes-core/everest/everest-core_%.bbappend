@@ -27,10 +27,12 @@ EVEREST_INCLUDE_MODULES = " \
     Acrel_DJSF1352_RN \
     Auth \
     Bender_isoCHA425HV \
+    CarloGavazzi_EM580 \
     ChargerInfo \
     DCSupplySimulator \
     DPM1000 \
     DZG_GSH01 \
+    DoldRN5893 \
     DummyBankSessionTokenProvider \
     DummyTokenProvider \
     DummyTokenProviderManual \
@@ -49,6 +51,7 @@ EVEREST_INCLUDE_MODULES = " \
     EvseV2G \
     GenericPowermeter \
     Huawei_R100040Gx \
+    Huawei_V100R023C10 \
     IMDSimulator \
     InfyPower \
     InfyPower_BEG1K075G \
