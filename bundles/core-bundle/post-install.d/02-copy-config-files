@@ -28,6 +28,7 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	/home/root/.config
 	/etc/systemd/network
 	/etc/hostapd/hostapd.conf
+	/etc/wpa_supplicant
 	EOF
 
 	# we need to check whether we have already a system with usually clean directory
