@@ -40,6 +40,14 @@ EVEREST_EXCLUDE_MODULES:chargesom ??= " \
     CbTarragonPlugLock \
 "
 
+EVEREST_EXCLUDE_MODULES:evachargese ??= " \
+    CbChargeSOMDriver \
+    CbParsleyDriver \
+    CbTarragonDIs \
+    CbTarragonDriver \
+    CbTarragonPlugLock \
+"
+
 EVEREST_EXCLUDE_MODULES:tarragon ??= " \
     CbChargeSOMDriver \
     CbParsleyDriver \
