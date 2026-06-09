@@ -108,10 +108,7 @@ def _get_bundlename(d):
     elif d.getVar('MACHINE', True) == "tarragon":
         machine = "Tarragon"
     elif d.getVar('MACHINE', True) == "chargesom":
-        if d.getVar('SUBMACHINE', True) == "dc-evb":
-            machine = "Charge-SOM-Single-Channel-DC-Carrier-Board"
-        else:
-            machine = "Charge-SOM-unspecified"
+        machine = "Charge-SOM"
     elif d.getVar('MACHINE', True) == "parsley":
         machine = "Parsley"
     else:
