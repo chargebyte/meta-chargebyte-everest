@@ -1,0 +1,44 @@
+From fb15bbc7f01465af5af18e7cc03e3664b05a96d4 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <michael.heimpold@chargebyte.com>
+Date: Thu, 11 Jun 2026 16:33:39 +0200
+Subject: [PATCH 1/2] PN7160TokenProvider: rework linking to libnfs-nci
+
+This drops an obsolete include path and allows to link to this
+library either statically or dynamically.
+
+Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+---
+ .../NfcReaders/PN7160TokenProvider/CMakeLists.txt      | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/modules/HardwareDrivers/NfcReaders/PN7160TokenProvider/CMakeLists.txt b/modules/HardwareDrivers/NfcReaders/PN7160TokenProvider/CMakeLists.txt
+index 584f2f405178..e672e69e7e4b 100644
+--- a/modules/HardwareDrivers/NfcReaders/PN7160TokenProvider/CMakeLists.txt
++++ b/modules/HardwareDrivers/NfcReaders/PN7160TokenProvider/CMakeLists.txt
+@@ -8,11 +8,9 @@
+ ev_setup_cpp_module()
+ 
+ # ev@bcc62523-e22b-41d7-ba2f-825b493a3c97:v1
+-
+-target_include_directories(${MODULE_NAME}
+-PRIVATE
+-    "common"
+-)
++if (DISABLE_EDM)
++    find_package(libnfc-nci REQUIRED)
++endif()
+ 
+ target_sources(${MODULE_NAME}
+     PRIVATE
+@@ -21,7 +19,7 @@ target_sources(${MODULE_NAME}
+ 
+ target_link_libraries(${MODULE_NAME}
+     PRIVATE
+-        "libnfc_nci"
++        libnfc_nci::libnfc_nci
+ )
+ # ev@bcc62523-e22b-41d7-ba2f-825b493a3c97:v1
+ 
+-- 
+2.34.1
+
