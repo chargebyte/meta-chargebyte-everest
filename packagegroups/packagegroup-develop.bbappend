@@ -8,3 +8,6 @@ RDEPENDS:${PN} += "${@bb.utils.contains("MACHINE", "chargesom", "node-red nodejs
 # we exclude the dependency in EVerest recipe but the library should be
 # available in our developer rootfs so users can cross-build bringup modules
 RDEPENDS:${PN} += "ftxui"
+
+# include test binary for libncf-nci
+RDEPENDS:${PN} += "libnfc-nci-bin"
