@@ -28,6 +28,7 @@ RAUC_BUNDLE_COMPATIBLE:chargesom ?= "chargebyte Charge SOM"
 RAUC_BUNDLE_COMPATIBLE:evachargese ?= "I2SE EVAcharge SE"
 RAUC_BUNDLE_COMPATIBLE:tarragon ?= "I2SE Tarragon"
 RAUC_BUNDLE_COMPATIBLE:parsley ?= "chargebyte Charge Control Y"
+RAUC_BUNDLE_COMPATIBLE:lime ?= "chargebyte Lime"
 
 RAUC_BUNDLE_HOOKS[file] = "hooks.sh"
 
@@ -111,6 +112,8 @@ def _get_bundlename(d):
         machine = "Charge-SOM"
     elif d.getVar('MACHINE', True) == "parsley":
         machine = "Parsley"
+    elif d.getVar('MACHINE', True) == "lime":
+        machine = "Lime"
     else:
         machine = "Unknown"
 
