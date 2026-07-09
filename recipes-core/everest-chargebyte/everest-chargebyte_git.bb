@@ -14,7 +14,7 @@ DEPENDS = " \
     everest-core \
     evcli-native \
     libgpiod \
-    ${@bb.utils.contains_any("MACHINE", "chargesom parsley", "ra-utils", "", d)} \
+    ${@bb.utils.contains_any("MACHINE", "chargesom lime parsley", "ra-utils", "", d)} \
     sigslot \
     systemd \
     libsocketcan \
@@ -46,6 +46,12 @@ EVEREST_EXCLUDE_MODULES:evachargese ??= " \
     CbTarragonDIs \
     CbTarragonDriver \
     CbTarragonPlugLock \
+"
+
+EVEREST_EXCLUDE_MODULES:lime ??= " \
+    CbTarragonDIs \
+    CbTarragonDriver \
+    CbParsleyDriver \
 "
 
 EVEREST_EXCLUDE_MODULES:tarragon ??= " \
