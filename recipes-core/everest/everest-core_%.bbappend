@@ -98,11 +98,11 @@ do_install:append() {
 
     # install alias for journalctl convenience
     install -d ${D}${sysconfdir}/profile.d/
-    install -m 0644 ${WORKDIR}/journalctl-alias.sh ${D}${sysconfdir}/profile.d/
+    install -m 0644 ${UNPACKDIR}/journalctl-alias.sh ${D}${sysconfdir}/profile.d/
 
     # additional systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
-    install -m 0644 ${WORKDIR}/02-led-boot-notification.conf ${D}${systemd_system_unitdir}/everest.service.d/
+    install -m 0644 ${UNPACKDIR}/02-led-boot-notification.conf ${D}${systemd_system_unitdir}/everest.service.d/
 }
 
 FILES:${PN} += " \

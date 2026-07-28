@@ -38,12 +38,12 @@ FILES:${PN} += " ${datadir}/everest"
 do_install:append() {
     # install environment configuration for helper ftpd
     install -m 0755 -d ${D}${sysconfdir}/default
-    install -m 0644 ${WORKDIR}/systemaggregatorftpd ${D}${sysconfdir}/default/systemaggregatorftpd
+    install -m 0644 ${UNPACKDIR}/systemaggregatorftpd ${D}${sysconfdir}/default/systemaggregatorftpd
 
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${systemd_system_unitdir}
-        install -m 0644 ${WORKDIR}/systemaggregatorftpd@.service ${D}${systemd_system_unitdir}/
-        install -m 0644 ${WORKDIR}/systemaggregatorftpd.socket ${D}${systemd_system_unitdir}/
+        install -m 0644 ${UNPACKDIR}/systemaggregatorftpd@.service ${D}${systemd_system_unitdir}/
+        install -m 0644 ${UNPACKDIR}/systemaggregatorftpd.socket ${D}${systemd_system_unitdir}/
     fi
 
     # don't install example configuration
