@@ -23,10 +23,10 @@ FILES:${PN} += " \
 do_install() {
     # Systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
-    install -m 0644 ${WORKDIR}/*.conf ${D}${systemd_system_unitdir}/everest.service.d/
+    install -m 0644 ${UNPACKDIR}/*.conf ${D}${systemd_system_unitdir}/everest.service.d/
 
     # Migration tool
     install -d ${D}${libexecdir}/everest/migration
-    install -m 0755 ${WORKDIR}/migrate-config.sh ${D}${libexecdir}/everest/migration
-    install -m 0755 ${WORKDIR}/migration-functions.sh ${D}${libexecdir}/everest/migration
+    install -m 0755 ${UNPACKDIR}/migrate-config.sh ${D}${libexecdir}/everest/migration
+    install -m 0755 ${UNPACKDIR}/migration-functions.sh ${D}${libexecdir}/everest/migration
 }
