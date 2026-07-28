@@ -13,7 +13,6 @@ SRC_URI = " \
 SRCREV = "e9a6651d683e372eb6765500c2c74df401ab6af6"
 PV = "2026.02.0+git${SRCPV}"
 
-S = "${WORKDIR}/git"
 
 inherit cmake systemd python3native
 
