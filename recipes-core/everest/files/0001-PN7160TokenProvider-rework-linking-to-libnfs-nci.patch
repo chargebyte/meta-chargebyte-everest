@@ -3,6 +3,8 @@ From: Michael Heimpold <michael.heimpold@chargebyte.com>
 Date: Thu, 11 Jun 2026 16:33:39 +0200
 Subject: [PATCH 1/2] PN7160TokenProvider: rework linking to libnfs-nci
 
+Upstream-Status: Inappropriate [chargebyte specific EVerest module]
+
 This drops an obsolete include path and allows to link to this
 library either statically or dynamically.
 

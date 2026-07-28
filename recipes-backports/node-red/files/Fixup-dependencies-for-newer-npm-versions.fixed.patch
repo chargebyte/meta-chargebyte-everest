@@ -3,6 +3,8 @@ From: Scott Ware <scott.r.ware@intel.com>
 Date: Sun, 23 Jan 2022 09:45:03 +0000
 Subject: [PATCH 2/2] Fixup dependencies for newer npm versions
 
+Upstream-Status: Inappropriate [chargebyte specific npm dependency pin]
+
 Signed-off-by: Scott Ware <scott.r.ware@intel.com>
 ---
  .../node_modules/@sindresorhus/is/package.json     |   3 +-
