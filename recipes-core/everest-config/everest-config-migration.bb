@@ -12,7 +12,7 @@ SRC_URI = " \
 
 inherit allarch
 
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 FILES:${PN} += " \
     ${systemd_system_unitdir}/everest.service.d/* \
