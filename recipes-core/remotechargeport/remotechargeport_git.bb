@@ -8,8 +8,12 @@ SRC_URI = " \
     file://systemaggregatorftpd \
     file://systemaggregatorftpd.socket \
     file://systemaggregatorftpd@.service \
+    file://0001-Use-Boost-Process-v1-API-explicitly-for-Boost-1.86.patch \
 "
 
+# TEMPORARY: fixes a build failure against Boost 1.86+ (boost::process's
+# classic API moved under an explicit v1 namespace). Send upstream to
+# github.com/mhei/remotechargeport -- drop this patch once it lands there.
 SRCREV = "e9a6651d683e372eb6765500c2c74df401ab6af6"
 PV = "2026.02.0+git${SRCPV}"
 

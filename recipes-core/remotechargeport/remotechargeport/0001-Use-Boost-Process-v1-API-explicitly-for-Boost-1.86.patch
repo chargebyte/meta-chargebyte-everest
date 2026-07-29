@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Simon Stuerz <simon.stuerz@nymea.io>
+Date: Wed, 29 Jul 2026 00:00:00 +0200
+Subject: [PATCH] Use Boost.Process v1 API explicitly for Boost 1.86+
+
+Upstream-Status: Pending
+
+systemImpl.cpp uses the classic Boost.Process API (boost::process::
+ipstream, child, args, std_out unqualified). Boost 1.86+ restructured
+Boost.Process into v1/v2, with boost::process defaulting to the new v2
+API and <boost/process.hpp> no longer pulling in the v1 headers at all
+(ipstream/child/args live under boost/process/v1/*.hpp, and v1 is only
+an inline namespace -- making its names resolve unqualified -- when
+BOOST_PROCESS_VERSION is explicitly defined as 1 before inclusion).
+
+Define BOOST_PROCESS_VERSION 1 and include <boost/process/v1.hpp>
+directly instead of the version-agnostic <boost/process.hpp>, so the
+existing unqualified v1 API usage below keeps compiling unchanged.
+
+Found while building against Boost 1.90.0 under the wrynose Yocto BSP
+port.
+
+Signed-off-by: Simon Stuerz <simon.stuerz@nymea.io>
+---
+ modules/SystemAggregator/system/systemImpl.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+--- a/modules/SystemAggregator/system/systemImpl.cpp
++++ b/modules/SystemAggregator/system/systemImpl.cpp
+@@ -13,7 +13,14 @@
+ #include <thread>
+ #include <vector>
+ #include <fmt/chrono.h>
+-#include <boost/process.hpp>
++// BOOST_PROCESS_VERSION 1: this file uses the classic Boost.Process
++// API (ipstream, child, args, std_out), which Boost 1.86+ moved under
++// an explicit boost::process::v1 namespace (boost::process now
++// defaults to the v2 API, and <boost/process.hpp> no longer pulls in
++// the v1 headers at all). Defining this makes v1 an inline namespace
++// again, so the unqualified names below keep resolving.
++#define BOOST_PROCESS_VERSION 1
++#include <boost/process/v1.hpp>
+ #include "../systemaggregator_upload_log_request.hpp"
+ 
+ using namespace std::chrono_literals;
