@@ -35,7 +35,14 @@ EXTRA_OECMAKE += " \
     -Dremotechargeport_USE_PYTHON_VENV=OFF \
 "
 
-SYSTEMD_SERVICE:${PN} = "systemaggregatorftpd.socket systemaggregatorftpd@.service"
+# systemaggregatorftpd@.service is Accept=yes socket-activated: each
+# connection spawns its own dynamically-named instance directly via
+# systemd's socket activation, never through the bare template unit's own
+# [Install] section. Enabling the bare template itself isn't meaningful
+# ("Refusing to operate on template unit ... when destination unit
+# multi-user.target is a non-template unit") and isn't needed -- only the
+# socket needs a persistent enable.
+SYSTEMD_SERVICE:${PN} = "systemaggregatorftpd.socket"
 
 FILES:${PN} += " ${datadir}/everest"
 
