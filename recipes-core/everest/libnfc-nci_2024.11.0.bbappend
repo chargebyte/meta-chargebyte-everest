@@ -25,3 +25,11 @@ EXTRA_OECMAKE += " \
 # split examples into dedicated package
 PACKAGE_BEFORE_PN += "${PN}-bin"
 FILES:${PN}-bin = "${bindir}/*"
+
+do_install:append() {
+    # everest-core ships its own copy of this same config path (the one
+    # its PN7160TokenProvider module actually reads at runtime); this
+    # generic upstream default conflicts with it at the package level
+    # ("trying to overwrite ... which is also in package everest-core").
+    rm -f ${D}${sysconfdir}/everest/libnfc_config/libnfc-nci.conf
+}
