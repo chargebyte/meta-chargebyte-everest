@@ -27,9 +27,11 @@ PACKAGE_BEFORE_PN += "${PN}-bin"
 FILES:${PN}-bin = "${bindir}/*"
 
 do_install:append() {
-    # everest-core ships its own copy of this same config path (the one
-    # its PN7160TokenProvider module actually reads at runtime); this
-    # generic upstream default conflicts with it at the package level
-    # ("trying to overwrite ... which is also in package everest-core").
+    # Both files below have a machine/module-specific override elsewhere
+    # (everest-core's PN7160TokenProvider ships its own libnfc-nci.conf;
+    # everest-basefiles ships a chargesom-specific libnfc-nxp.conf via the
+    # private everest-configuration repo). Drop the generic upstream
+    # defaults so dpkg doesn't hit a "trying to overwrite" file conflict.
     rm -f ${D}${sysconfdir}/everest/libnfc_config/libnfc-nci.conf
+    rm -f ${D}${sysconfdir}/everest/libnfc_config/libnfc-nxp.conf
 }
