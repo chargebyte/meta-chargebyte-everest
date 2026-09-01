@@ -10,6 +10,7 @@ SRC_URI += " \
     file://0001-Drop-timestamp-from-logging.patch \
     file://0001-lib-everest-log-pretty-print-none-info-messages.patch \
     file://0001-PN7160TokenProvider-rework-linking-to-libnfs-nci.patch \
+    file://0001-lib-everest-ocpp-export-everest-util-dependency.patch \
     file://journalctl-alias.sh \
 "
 

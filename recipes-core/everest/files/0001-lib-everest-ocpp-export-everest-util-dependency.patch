@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: chargebyte GmbH <info@chargebyte.com>
+Date: Mon, 31 Aug 2026 12:00:00 +0200
+Subject: [PATCH] cmake: fix exported EVerest package dependency order
+
+The ocpp target links everest::util in its public link interface. Its
+installed CMake package must therefore import everest-util before loading the
+exported ocpp target, otherwise consumers fail during find_package() with a
+missing everest::util target.
+
+The aggregate everest-core package exports everest::util itself. Import these
+core targets before loading component packages such as everest-ocpp so those
+component packages can resolve targets provided by everest-core.
+
+Also keep the selective library dependency map aligned with the actual target
+link interface.
+
+Signed-off-by: chargebyte GmbH <info@chargebyte.com>
+Upstream-Status: Pending
+---
+ cmake/ev-lib-dependencies.cmake |  2 +-
+ cmake/project-config.cmake.in   | 10 +++++-----
+ lib/everest/ocpp/CMakeLists.txt |  1 +
+ 3 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/cmake/ev-lib-dependencies.cmake b/cmake/ev-lib-dependencies.cmake
+index 3cc7606d55e6..933fcfd6b184 100644
+--- a/cmake/ev-lib-dependencies.cmake
++++ b/cmake/ev-lib-dependencies.cmake
+@@ -52,6 +52,6 @@ set(EVEREST_LIB_DEPS_run_application "log")
+ set(EVEREST_LIB_DEPS_evse_security "cbv2g")
+ # Tier 2
+-set(EVEREST_LIB_DEPS_ocpp "log;timer;evse_security;sqlite")
++set(EVEREST_LIB_DEPS_ocpp "log;timer;util;evse_security;sqlite")
+ set(EVEREST_LIB_DEPS_iso15118 "cbv2g")
+ set(EVEREST_LIB_DEPS_ieee2030_1_1 "framework")
+ # Tier 3 (framework-coupled)
+diff --git a/cmake/project-config.cmake.in b/cmake/project-config.cmake.in
+index 955097686873..9193971106c6 100644
+--- a/cmake/project-config.cmake.in
++++ b/cmake/project-config.cmake.in
+@@ -3,18 +3,18 @@ set(@LIBRARY_PACKAGE_NAME@_VERSION @PROJECT_VERSION@)
+ @PACKAGE_INIT@
+ 
+ set(EVEREST_SCHEMA_DIR "@PACKAGE_EVEREST_DATADIR@/schemas")
++include(CMakeFindDependencyMacro)
+ find_package(everest-log REQUIRED)
++find_dependency(ryml REQUIRED)
++
++include(${CMAKE_CURRENT_LIST_DIR}/ev-project-bootstrap.cmake)
++include(${CMAKE_CURRENT_LIST_DIR}/everest-core-targets.cmake)
+ find_package(everest-sqlite REQUIRED)
+ find_package(everest-timer REQUIRED)
+ find_package(everest-evse_security REQUIRED)
+ find_package(everest-ocpp REQUIRED)
+-find_dependency(ryml REQUIRED)
+-
+-include(${CMAKE_CURRENT_LIST_DIR}/ev-project-bootstrap.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/everest-core-targets.cmake)
+ find_package(everest-framework REQUIRED)
+-include(CMakeFindDependencyMacro)
+ 
+ ev_add_project(
+     EV_PROJECT_DIRECTORY @PACKAGE_EVEREST_DATADIR@
+     EV_PROJECT_NAME everest-core
+diff --git a/lib/everest/ocpp/CMakeLists.txt b/lib/everest/ocpp/CMakeLists.txt
+index a0ae88874eb0..e2eac2b5bf77 100644
+--- a/lib/everest/ocpp/CMakeLists.txt
++++ b/lib/everest/ocpp/CMakeLists.txt
+@@ -88,6 +88,7 @@ if (OCPP_INSTALL)
+         NAMESPACE everest
+         EXPORT ocpp-targets
+         ADDITIONAL_CONTENT
++            "find_dependency(everest-util)"
+             "find_dependency(OpenSSL)"
+             "find_dependency(SQLite3)"
+             "find_dependency(libwebsockets)"
+-- 
+2.34.1
