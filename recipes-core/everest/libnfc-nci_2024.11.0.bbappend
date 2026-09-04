@@ -2,7 +2,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 # overwrite source until our PR is merged
 SRC_URI = "git://github.com/chargebyte/linux_libnfc-nci.git;branch=feature/libgpiod;protocol=https"
-SRCREV = "ce5f6b2733b89c040f4fa9065e4a1d7e36e0327e"
+SRCREV = "7524e3dd25220e31a828718aeb3f7e6981659000"
 
 # TEMPORARY: demoapp/main.c calls PrintNDEFContent() above its definition
 # with no forward declaration. GCC 14+ treats that as a hard error (was
