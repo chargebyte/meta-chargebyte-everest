@@ -1,0 +1,519 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0dd57c65..9edd6183 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,6 +6,9 @@ project(everest-core
+ 	LANGUAGES CXX C
+ )
+ 
++# The aggregate package is the only export owner when the complete core is built.
++set(EVEREST_CORE_BUILD ON)
++
+ find_package(everest-cmake 0.7
+     COMPONENTS bundling
+     PATHS ../everest-cmake
+diff --git a/cmake/project-config.cmake.in b/cmake/project-config.cmake.in
+index f6ce7a2e..8576f39b 100644
+--- a/cmake/project-config.cmake.in
++++ b/cmake/project-config.cmake.in
+@@ -2,25 +2,26 @@ set(@LIBRARY_PACKAGE_NAME@_VERSION @PROJECT_VERSION@)
+ 
+ @PACKAGE_INIT@
+ 
++include(CMakeFindDependencyMacro)
++
+ set(EVEREST_SCHEMA_DIR "@PACKAGE_EVEREST_DATADIR@/schemas")
+-find_package(everest-log REQUIRED)
+-find_package(everest-sqlite REQUIRED)
+-find_package(everest-timer REQUIRED)
+-find_package(everest-evse_security REQUIRED)
+-find_package(everest-api-types REQUIRED)
++find_dependency(Boost REQUIRED COMPONENTS filesystem program_options thread log_setup log headers)
++find_dependency(SQLite3 REQUIRED)
++find_dependency(OpenSSL 3 REQUIRED)
++find_dependency(date REQUIRED)
++find_dependency(nlohmann_json REQUIRED)
++find_dependency(nlohmann_json_schema_validator REQUIRED)
+ find_dependency(ryml REQUIRED)
++find_dependency(fmt REQUIRED)
++find_dependency(libwebsockets REQUIRED)
++find_dependency(Threads REQUIRED)
++find_dependency(sdbus-c++ REQUIRED)
+ 
+ set(EV_PROJECT_INFO_SOURCE_DIR "@PACKAGE_EVEREST_DATADIR@/project_info")
+ 
+ include(${CMAKE_CURRENT_LIST_DIR}/ev-project-bootstrap.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/everest-core-targets.cmake)
+ 
+-find_package(everest-framework REQUIRED)
+-find_package(everest-tls REQUIRED)
+-find_package(everest-helpers REQUIRED)
+-find_package(everest-ocpp REQUIRED)
+-
+-include(CMakeFindDependencyMacro)
++include(${CMAKE_CURRENT_LIST_DIR}/everest-core-targets.cmake)
+ 
+ ev_add_project(
+     EV_PROJECT_DIRECTORY @PACKAGE_EVEREST_DATADIR@
+diff --git a/lib/everest/cbv2g/CMakeLists.txt b/lib/everest/cbv2g/CMakeLists.txt
+index 06009baa..e6931e0b 100644
+--- a/lib/everest/cbv2g/CMakeLists.txt
++++ b/lib/everest/cbv2g/CMakeLists.txt
+@@ -41,6 +41,11 @@ endif()
+ 
+ # packaging
+ if (CB_V2G_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(CBV2G_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(CBV2G_EXPORT_TARGETS cbv2g-targets)
++    endif()
+     install(
+         TARGETS
+             cbv2g_exi_codec
+@@ -48,7 +53,7 @@ if (CB_V2G_INSTALL)
+             cbv2g_iso2
+             cbv2g_iso20
+             cbv2g_tp
+-        EXPORT cbv2g-targets
++        EXPORT ${CBV2G_EXPORT_TARGETS}
+         LIBRARY
+     )
+ 
+@@ -63,4 +68,3 @@ if (CB_V2G_INSTALL)
+         EXPORT cbv2g-targets
+     )
+ endif()
+-
+diff --git a/lib/everest/everest_api_module_helpers/CMakeLists.txt b/lib/everest/everest_api_module_helpers/CMakeLists.txt
+index c9a78205..eb4d773b 100644
+--- a/lib/everest/everest_api_module_helpers/CMakeLists.txt
++++ b/lib/everest/everest_api_module_helpers/CMakeLists.txt
+@@ -25,8 +25,13 @@ target_link_libraries(everest_api_module_helpers
+     everest::framework
+ )
+ 
++if (EVEREST_CORE_BUILD)
++  set(API_MODULE_HELPERS_EXPORT_TARGETS everest-core-targets)
++else()
++  set(API_MODULE_HELPERS_EXPORT_TARGETS everest_api_module_helpers-targets)
++endif()
+ install(TARGETS everest_api_module_helpers
+-  EXPORT everest_api_module_helpers-targets
++  EXPORT ${API_MODULE_HELPERS_EXPORT_TARGETS}
+   LIBRARY
+ )
+ 
+diff --git a/lib/everest/everest_api_types/CMakeLists.txt b/lib/everest/everest_api_types/CMakeLists.txt
+index 3e20c18e..07ec4263 100644
+--- a/lib/everest/everest_api_types/CMakeLists.txt
++++ b/lib/everest/everest_api_types/CMakeLists.txt
+@@ -156,8 +156,13 @@ if (EVEREST_API_JSON_INDENT)
+     target_compile_definitions(everest_api_types PUBLIC EVEREST_API_JSON_INDENT=${EVEREST_API_JSON_INDENT})
+ endif ()
+ 
++if (EVEREST_CORE_BUILD)
++  set(API_TYPES_EXPORT_TARGETS everest-core-targets)
++else()
++  set(API_TYPES_EXPORT_TARGETS everest_api_types-targets)
++endif()
+ install(TARGETS everest_api_types
+-  EXPORT everest_api_types-targets
++  EXPORT ${API_TYPES_EXPORT_TARGETS}
+   LIBRARY
+ )
+ 
+diff --git a/lib/everest/evse_security/CMakeLists.txt b/lib/everest/evse_security/CMakeLists.txt
+index 5cbc1f23..e18d8b36 100644
+--- a/lib/everest/evse_security/CMakeLists.txt
++++ b/lib/everest/evse_security/CMakeLists.txt
+@@ -66,9 +66,14 @@ add_subdirectory(lib)
+ 
+ # packaging
+ if (EVSE_SECURITY_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(EVSE_SECURITY_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(EVSE_SECURITY_EXPORT_TARGETS evse_security-targets)
++    endif()
+     install(
+         TARGETS evse_security
+-        EXPORT evse_security-targets
++        EXPORT ${EVSE_SECURITY_EXPORT_TARGETS}
+         LIBRARY
+     )
+ 
+@@ -83,11 +88,13 @@ if (EVSE_SECURITY_INSTALL)
+         TYPE INCLUDE
+     )
+ 
+-    evc_setup_package(
+-        NAME everest-evse_security
+-        NAMESPACE everest
+-        EXPORT evse_security-targets
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-evse_security
++            NAMESPACE everest
++            EXPORT evse_security-targets
++        )
++    endif()
+ endif()
+ 
+ if(LIBEVSE_SECURITY_BUILD_TESTING)
+diff --git a/lib/everest/framework/CMakeLists.txt b/lib/everest/framework/CMakeLists.txt
+index b749c7b4..142c4e92 100644
+--- a/lib/everest/framework/CMakeLists.txt
++++ b/lib/everest/framework/CMakeLists.txt
+@@ -237,8 +237,13 @@ endif()
+ 
+ # FIXME (aw): should this be installed or not?  Right now it is needed for the
+ #             current packaging approach
++if (EVEREST_CORE_BUILD)
++    set(FRAMEWORK_EXPORT_TARGETS everest-core-targets)
++else()
++    set(FRAMEWORK_EXPORT_TARGETS framework-targets)
++endif()
+ install(TARGETS framework
+-    EXPORT framework-targets
++    EXPORT ${FRAMEWORK_EXPORT_TARGETS}
+     LIBRARY
+ )
+ 
+@@ -254,21 +259,23 @@ if (FRAMEWORK_INSTALL)
+         DESTINATION include/everest
+     )
+ 
+-    evc_setup_package(
+-        NAME everest-framework
+-        EXPORT framework-targets
+-        NAMESPACE everest
+-        ADDITIONAL_CONTENT
+-            "find_dependency(everest-helpers)"
+-            "find_dependency(everest-util)"
+-            "find_dependency(nlohmann_json)"
+-            "find_dependency(nlohmann_json_schema_validator)"
+-            "find_dependency(fmt)"
+-            "find_dependency(date)"
+-            "set(EVEREST_SCHEMA_DIR \"@PACKAGE_EVEREST_SCHEMA_DIR@\")"
+-        PATH_VARS
+-            EVEREST_SCHEMA_DIR "${CMAKE_INSTALL_DATADIR}/everest/schemas"
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-framework
++            EXPORT framework-targets
++            NAMESPACE everest
++            ADDITIONAL_CONTENT
++                "find_dependency(everest-helpers)"
++                "find_dependency(everest-util)"
++                "find_dependency(nlohmann_json)"
++                "find_dependency(nlohmann_json_schema_validator)"
++                "find_dependency(fmt)"
++                "find_dependency(date)"
++                "set(EVEREST_SCHEMA_DIR \"@PACKAGE_EVEREST_SCHEMA_DIR@\")"
++            PATH_VARS
++                EVEREST_SCHEMA_DIR "${CMAKE_INSTALL_DATADIR}/everest/schemas"
++        )
++    endif()
+ endif ()
+ 
+ # testing
+diff --git a/lib/everest/helpers/CMakeLists.txt b/lib/everest/helpers/CMakeLists.txt
+index d276b51a..932656f5 100644
+--- a/lib/everest/helpers/CMakeLists.txt
++++ b/lib/everest/helpers/CMakeLists.txt
+@@ -56,21 +56,28 @@ if (BUILD_TESTING)
+ endif()
+ 
+ if(DISABLE_EDM)
++    if (EVEREST_CORE_BUILD)
++        set(HELPERS_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(HELPERS_EXPORT_TARGETS everest-helpers-targets)
++    endif()
+     install(
+         TARGETS
+             everest_helpers
+-        EXPORT everest-helpers-targets
++        EXPORT ${HELPERS_EXPORT_TARGETS}
+         LIBRARY
+     )
+ 
+-    evc_setup_package(
+-        NAME everest-helpers
+-        EXPORT everest-helpers-targets
+-        NAMESPACE everest
+-        ADDITIONAL_CONTENT
+-            "find_dependency(everest-tls)"
+-            "find_dependency(nlohmann_json)"
+-            "find_dependency(nlohmann_json_schema_validator)"
+-            "find_dependency(fmt)"
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-helpers
++            EXPORT everest-helpers-targets
++            NAMESPACE everest
++            ADDITIONAL_CONTENT
++                "find_dependency(everest-tls)"
++                "find_dependency(nlohmann_json)"
++                "find_dependency(nlohmann_json_schema_validator)"
++                "find_dependency(fmt)"
++        )
++    endif()
+ endif()
+diff --git a/lib/everest/ieee2030_1_1/CMakeLists.txt b/lib/everest/ieee2030_1_1/CMakeLists.txt
+index 41c9db51..60f235b3 100644
+--- a/lib/everest/ieee2030_1_1/CMakeLists.txt
++++ b/lib/everest/ieee2030_1_1/CMakeLists.txt
+@@ -64,10 +64,15 @@ if (IEEE2030_BUILD_TESTING)
+ endif()
+ 
+ if (IEEE2030_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(IEEE2030_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(IEEE2030_EXPORT_TARGETS ieee2030-targets)
++    endif()
+     install(
+         TARGETS
+             ieee2030
+-        EXPORT ieee2030-targets
++        EXPORT ${IEEE2030_EXPORT_TARGETS}
+     )
+ 
+     install(
+diff --git a/lib/everest/iso15118/CMakeLists.txt b/lib/everest/iso15118/CMakeLists.txt
+index 66b5fdc8..c85c7c9e 100644
+--- a/lib/everest/iso15118/CMakeLists.txt
++++ b/lib/everest/iso15118/CMakeLists.txt
+@@ -66,10 +66,15 @@ if (ISO15118_BUILD_TESTING)
+ endif()
+ 
+ if (ISO15118_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(ISO15118_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(ISO15118_EXPORT_TARGETS iso15118-targets)
++    endif()
+     install(
+         TARGETS
+             iso15118
+-        EXPORT iso15118-targets
++        EXPORT ${ISO15118_EXPORT_TARGETS}
+     )
+ 
+     install(
+diff --git a/lib/everest/log/CMakeLists.txt b/lib/everest/log/CMakeLists.txt
+index 3c4d3297..dd04609c 100644
+--- a/lib/everest/log/CMakeLists.txt
++++ b/lib/everest/log/CMakeLists.txt
+@@ -74,9 +74,14 @@ install(
+ if (LOG_INSTALL)
+     set_target_properties(everest_log PROPERTIES EXPORT_NAME log)
+ 
++    if (EVEREST_CORE_BUILD)
++        set(LOG_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(LOG_EXPORT_TARGETS log-targets)
++    endif()
+     install(
+         TARGETS everest_log
+-        EXPORT log-targets
++        EXPORT ${LOG_EXPORT_TARGETS}
+     )
+ 
+     install(
+@@ -88,13 +93,15 @@ if (LOG_INSTALL)
+     #   FIXME (aw): if statically build, we would need to install libbacktrace too
+     endif()
+ 
+-    evc_setup_package(
+-        NAME everest-log
+-        NAMESPACE everest
+-        EXPORT log-targets
+-        ADDITIONAL_CONTENT
+-            "find_dependency(Boost COMPONENTS log_setup log)"
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-log
++            NAMESPACE everest
++            EXPORT log-targets
++            ADDITIONAL_CONTENT
++                "find_dependency(Boost COMPONENTS log_setup log)"
++        )
++    endif()
+ endif()
+ 
+ 
+diff --git a/lib/everest/ocpp/CMakeLists.txt b/lib/everest/ocpp/CMakeLists.txt
+index ffc51cf1..c89e4b62 100644
+--- a/lib/everest/ocpp/CMakeLists.txt
++++ b/lib/everest/ocpp/CMakeLists.txt
+@@ -74,9 +74,14 @@ add_subdirectory(lib)
+ 
+ # packaging
+ if (OCPP_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(OCPP_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(OCPP_EXPORT_TARGETS ocpp-targets)
++    endif()
+     install(
+         TARGETS ocpp
+-        EXPORT ocpp-targets
++        EXPORT ${OCPP_EXPORT_TARGETS}
+     )
+ 
+     install(
+diff --git a/lib/everest/sqlite/CMakeLists.txt b/lib/everest/sqlite/CMakeLists.txt
+index 0979af37..56f3ae52 100644
+--- a/lib/everest/sqlite/CMakeLists.txt
++++ b/lib/everest/sqlite/CMakeLists.txt
+@@ -55,9 +55,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ if (EVEREST_SQLITE_INSTALL)
+     set_target_properties(everest_sqlite PROPERTIES EXPORT_NAME sqlite)
+ 
++    if (EVEREST_CORE_BUILD)
++        set(SQLITE_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(SQLITE_EXPORT_TARGETS everest_sqlite-targets)
++    endif()
+     install(
+         TARGETS everest_sqlite
+-        EXPORT everest_sqlite-targets
++        EXPORT ${SQLITE_EXPORT_TARGETS}
+         LIBRARY
+     )
+ 
+@@ -72,14 +77,16 @@ if (EVEREST_SQLITE_INSTALL)
+             ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/cmake
+     )
+ 
+-    evc_setup_package(
+-        NAME everest-sqlite
+-        NAMESPACE everest
+-        EXPORT everest_sqlite-targets
+-        ADDITIONAL_CONTENT
+-            "find_dependency(SQLite3)"
+-            "include($\{CMAKE_CURRENT_LIST_DIR\}/cmake/CollectMigrationFiles.cmake)"
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-sqlite
++            NAMESPACE everest
++            EXPORT everest_sqlite-targets
++            ADDITIONAL_CONTENT
++                "find_dependency(SQLite3)"
++                "include($\{CMAKE_CURRENT_LIST_DIR\}/cmake/CollectMigrationFiles.cmake)"
++        )
++    endif()
+ endif()
+ 
+ if(EVEREST_SQLITE_BUILD_TESTING)
+diff --git a/lib/everest/system/CMakeLists.txt b/lib/everest/system/CMakeLists.txt
+index d011e0f5..4f916fbc 100644
+--- a/lib/everest/system/CMakeLists.txt
++++ b/lib/everest/system/CMakeLists.txt
+@@ -36,9 +36,14 @@ target_compile_definitions(everest_system
+ set_target_properties(everest_system PROPERTIES EXPORT_NAME system)
+ 
+ if (DISABLE_EDM)
++    if (EVEREST_CORE_BUILD)
++        set(SYSTEM_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(SYSTEM_EXPORT_TARGETS everest_system-targets)
++    endif()
+     install(
+         TARGETS everest_system
+-        EXPORT everest_system-targets
++        EXPORT ${SYSTEM_EXPORT_TARGETS}
+     )
+ 
+     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/everest
+diff --git a/lib/everest/timer/CMakeLists.txt b/lib/everest/timer/CMakeLists.txt
+index ea455921..405fa2a7 100644
+--- a/lib/everest/timer/CMakeLists.txt
++++ b/lib/everest/timer/CMakeLists.txt
+@@ -57,9 +57,14 @@ endif()
+ 
+ # packaging
+ if (TIMER_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(TIMER_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(TIMER_EXPORT_TARGETS timer-targets)
++    endif()
+     install(
+         TARGETS timer
+-        EXPORT timer-targets
++        EXPORT ${TIMER_EXPORT_TARGETS}
+     )
+ 
+     install(
+@@ -67,11 +72,13 @@ if (TIMER_INSTALL)
+         TYPE INCLUDE
+     )
+ 
+-    evc_setup_package(
+-        NAME everest-timer
+-        EXPORT timer-targets
+-        NAMESPACE everest
+-        ADDITIONAL_CONTENT
+-            "find_dependency(Boost COMPONENTS system)"
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-timer
++            EXPORT timer-targets
++            NAMESPACE everest
++            ADDITIONAL_CONTENT
++                "find_dependency(Boost COMPONENTS system)"
++        )
++    endif()
+ endif()
+diff --git a/lib/everest/tls/CMakeLists.txt b/lib/everest/tls/CMakeLists.txt
+index 0876d36f..0ae3c2d1 100644
+--- a/lib/everest/tls/CMakeLists.txt
++++ b/lib/everest/tls/CMakeLists.txt
+@@ -42,20 +42,27 @@ if(EVEREST_CORE_BUILD_TESTING)
+ endif()
+ 
+ if(DISABLE_EDM AND TLS_INSTALL)
++    if (EVEREST_CORE_BUILD)
++        set(TLS_EXPORT_TARGETS everest-core-targets)
++    else()
++        set(TLS_EXPORT_TARGETS everest-tls-targets)
++    endif()
+     install(
+         TARGETS
+             tls
+-        EXPORT everest-tls-targets
++        EXPORT ${TLS_EXPORT_TARGETS}
+         LIBRARY
+     )
+ 
+-    evc_setup_package(
+-        NAME everest-tls
+-        EXPORT everest-tls-targets
+-        NAMESPACE everest
+-        ADDITIONAL_CONTENT
+-            "find_dependency(everest-util)"
+-            "find_dependency(everest-evse_security)"
+-            "find_dependency(OpenSSL)"
+-    )
++    if (NOT EVEREST_CORE_BUILD)
++        evc_setup_package(
++            NAME everest-tls
++            EXPORT everest-tls-targets
++            NAMESPACE everest
++            ADDITIONAL_CONTENT
++                "find_dependency(everest-util)"
++                "find_dependency(everest-evse_security)"
++                "find_dependency(OpenSSL)"
++        )
++    endif()
+ endif()
