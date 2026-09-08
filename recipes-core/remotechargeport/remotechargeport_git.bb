@@ -12,16 +12,17 @@ SRC_URI = " \
     file://factory-reset \
 "
 
-SRCREV = "e9a6651d683e372eb6765500c2c74df401ab6af6"
-PV = "2026.02.0+git${SRCPV}"
+SRCREV = "527a8948ab5108a464890777862831c0eb44ba19"
+PV = "2026.10.0-pre1+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
-inherit cmake systemd python3native
+inherit cmake pkgconfig systemd python3native
 
 DEPENDS = " \
     everest-core \
     evcli-native \
+    libbaptismdata \
     rpclib \
 "
 
