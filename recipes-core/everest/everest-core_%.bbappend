@@ -1,6 +1,7 @@
 # When switching to a specific branch/remote of everest core, do that by
 # choosing the meta-everest layer from that branch.
 SRC_URI += "file://everest.service \
+            file://everest-core-generated-install-fix.patch \
 "
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
