@@ -1,0 +1,27 @@
+From 3e4ace037444b7e1fa91a5369f16fced73cf3e21 Mon Sep 17 00:00:00 2001
+From: Moritz Barsnick <moritz.barsnick@chargebyte.com>
+Date: Tue, 8 Sep 2026 09:43:56 +0200
+Subject: [PATCH] CMake: drop everest::system package dependency
+
+It is exported by everest-core.
+
+Signed-off-by: Moritz Barsnick <moritz.barsnick@chargebyte.com>
+---
+ CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 11beafe..0aa3390 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -30,7 +30,6 @@ if(NOT DISABLE_EDM)
+     evc_setup_edm()
+ else()
+     find_package(everest-core REQUIRED)
+-    find_package(everest-everest_system REQUIRED)
+ endif()
+ 
+ # library with utils/helpers
+-- 
+2.34.1
+
