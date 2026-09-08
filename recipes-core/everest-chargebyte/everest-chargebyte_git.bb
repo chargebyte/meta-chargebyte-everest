@@ -1,7 +1,10 @@
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
-SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https \
+           file://0001-CMake-drop-everest-system-package-dependency.patch \
+"
 
 SRCREV = "c62e3bd7fddb8de25784a24ce811cc296a03edc7"
 PV = "0.35.0+git${SRCPV}"
