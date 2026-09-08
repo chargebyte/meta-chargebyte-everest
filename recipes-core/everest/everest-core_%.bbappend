@@ -2,6 +2,7 @@
 # choosing the meta-everest layer from that branch.
 SRC_URI += "file://everest.service \
             file://everest-core-aggregate-export.patch \
+            file:///tmp/everest-core-generated-install-fix.patch \
 "
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
