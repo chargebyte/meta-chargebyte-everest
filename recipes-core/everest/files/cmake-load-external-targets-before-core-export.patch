@@ -1,0 +1,22 @@
+diff --git a/cmake/project-config.cmake.in b/cmake/project-config.cmake.in
+index f6ce7a2e3..c53278ff2 100644
+--- a/cmake/project-config.cmake.in
++++ b/cmake/project-config.cmake.in
+@@ -12,14 +12,14 @@ find_dependency(ryml REQUIRED)
+ 
+ set(EV_PROJECT_INFO_SOURCE_DIR "@PACKAGE_EVEREST_DATADIR@/project_info")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/ev-project-bootstrap.cmake)
+-include(${CMAKE_CURRENT_LIST_DIR}/everest-core-targets.cmake)
+-
+ find_package(everest-framework REQUIRED)
+ find_package(everest-tls REQUIRED)
+ find_package(everest-helpers REQUIRED)
+ find_package(everest-ocpp REQUIRED)
+ 
++include(${CMAKE_CURRENT_LIST_DIR}/ev-project-bootstrap.cmake)
++include(${CMAKE_CURRENT_LIST_DIR}/everest-core-targets.cmake)
++
+ include(CMakeFindDependencyMacro)
+ 
+ ev_add_project(
