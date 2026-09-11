@@ -19,6 +19,30 @@ EXTRA_OECMAKE += " \
     -DEVEREST_EXCLUDE_DEPENDENCIES='ftxui' \
 "
 
+# we include the following EVerest API modules
+# (all available ones except ev_board_support_API)
+EVEREST_INCLUDE_API_MODULES = " \
+    auth_consumer_API \
+    auth_token_provider_API \
+    auth_token_validator_API \
+    dc_external_derate_consumer_API \
+    display_message_API \
+    error_history_consumer_API \
+    evse_board_support_API \
+    evse_manager_consumer_API \
+    external_energy_limits_consumer_API \
+    generic_error_raiser_API \
+    isolation_monitor_API \
+    ocpp_consumer_API \
+    over_voltage_monitor_API \
+    powermeter_API \
+    power_supply_DC_API \
+    session_cost_API \
+    session_cost_consumer_API \
+    slac_API \
+    system_API \
+"
+
 # don't build/include undesired modules: some of the everest-core modules do not make sense
 # on our chargebyte embedded platforms, e.g. BSPs for other boards, javascript simulations
 # or similar; so the following list defines which modules we want to have in our standard image
@@ -78,6 +102,8 @@ EVEREST_INCLUDE_MODULES = " \
     UUGreenPower_UR1000X0 \
     Winline \
     YamlStore \
+    \
+    $EVEREST_INCLUDE_API_MODULES \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLUDE_MODULES', True).split())}'"
