@@ -103,7 +103,7 @@ EVEREST_INCLUDE_MODULES = " \
     Winline \
     YamlStore \
     \
-    $EVEREST_INCLUDE_API_MODULES \
+    ${EVEREST_INCLUDE_API_MODULES} \
 "
 
 EXTRA_OECMAKE += "-DEVEREST_INCLUDE_MODULES='${@";".join(d.getVar('EVEREST_INCLUDE_MODULES', True).split())}'"
