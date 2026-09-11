@@ -31,6 +31,7 @@ EVEREST_INCLUDE_API_MODULES = " \
     error_history_consumer_API \
     evse_board_support_API \
     evse_manager_consumer_API \
+    evse_security_consumer_API \
     external_energy_limits_consumer_API \
     generic_error_raiser_API \
     isolation_monitor_API \
@@ -50,6 +51,7 @@ EVEREST_INCLUDE_API_MODULES = " \
 EVEREST_INCLUDE_MODULES = " \
     API \
     AST_DC650 \
+    AcTemperatureDerating \
     Acrel_DJSF1352_RN \
     Auth \
     Bender_isoCHA425HV \
@@ -89,6 +91,7 @@ EVEREST_INCLUDE_MODULES = " \
     NxpNfcFrontendTokenProvider \
     OCPP \
     OCPP201 \
+    OCPPmulti \
     OVMSimulator \
     PN532TokenProvider \
     PN7160TokenProvider \
