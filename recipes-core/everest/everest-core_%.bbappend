@@ -89,6 +89,7 @@ EVEREST_INCLUDE_MODULES = " \
     LemDCBM400600 \
     Linux_Systemd_Rauc \
     LocalAllowlistTokenValidator \
+    McsDataLink \
     NxpNfcFrontendTokenProvider \
     OCPP \
     OCPP201 \
