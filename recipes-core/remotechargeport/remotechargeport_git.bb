@@ -6,6 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464"
 SRC_URI = " \
     git://github.com/mhei/remotechargeport.git;branch=main;protocol=https \
     file://systemaggregatorftpd \
+    file://systemaggregatorftpd-generator \
     file://systemaggregatorftpd.socket \
     file://systemaggregatorftpd@.service \
 "
@@ -32,9 +33,13 @@ EXTRA_OECMAKE += " \
     -Dremotechargeport_USE_PYTHON_VENV=OFF \
 "
 
-SYSTEMD_SERVICE:${PN} = "systemaggregatorftpd.socket systemaggregatorftpd@.service"
+SYSTEMD_SERVICE:${PN} = ""
+SYSTEMD_AUTO_ENABLE = "disable"
 
-FILES:${PN} += " ${datadir}/everest"
+FILES:${PN} += " \
+    ${datadir}/everest \
+    ${systemd_unitdir}/system-generators \
+"
 
 do_install:append() {
     # install environment configuration for helper ftpd
@@ -45,6 +50,8 @@ do_install:append() {
         install -d ${D}${systemd_system_unitdir}
         install -m 0644 ${WORKDIR}/systemaggregatorftpd@.service ${D}${systemd_system_unitdir}/
         install -m 0644 ${WORKDIR}/systemaggregatorftpd.socket ${D}${systemd_system_unitdir}/
+        install -d ${D}${systemd_unitdir}/system-generators
+        install -m 0755 ${WORKDIR}/systemaggregatorftpd-generator ${D}${systemd_unitdir}/system-generators/
     fi
 
     # don't install example configuration

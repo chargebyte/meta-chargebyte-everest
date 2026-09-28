@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -eu
+
+generator_early_dir="$2"
+socket_wants_dir="${generator_early_dir}/sockets.target.wants"
+socket_unit="/lib/systemd/system/systemaggregatorftpd.socket"
+
+if [ -r /etc/everest/config.yaml ] \
+    && /bin/grep -Eq '^[[:space:]]*module:[[:space:]]*SystemAggregator([[:space:]]|$)' /etc/everest/config.yaml; then
+    /bin/mkdir -p "${socket_wants_dir}"
+    /bin/ln -s "${socket_unit}" \
+        "${socket_wants_dir}/systemaggregatorftpd.socket"
+fi
