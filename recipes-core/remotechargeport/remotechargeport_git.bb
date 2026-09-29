@@ -38,7 +38,7 @@ SYSTEMD_AUTO_ENABLE = "disable"
 
 FILES:${PN} += " \
     ${datadir}/everest \
-    ${systemd_unitdir}/system-generators \
+    ${systemd_unitdir} \
 "
 
 do_install:append() {
