@@ -5,6 +5,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https \
            file://0001-CbSystem-adapt-to-changed-system-interface.patch \
            file://0001-CMake-drop-everest-system-package-dependency.patch \
+           file://revert-Backport-upstreams-interfaces-temperature_sensor.patch \
 "
 
 SRCREV = "c62e3bd7fddb8de25784a24ce811cc296a03edc7"
