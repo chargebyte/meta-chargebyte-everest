@@ -29,6 +29,7 @@ EVEREST_INCLUDE_API_MODULES = " \
     auth_consumer_API \
     auth_token_provider_API \
     auth_token_validator_API \
+    charger_information_API \
     dc_external_derate_consumer_API \
     display_message_API \
     error_history_consumer_API \
@@ -44,6 +45,7 @@ EVEREST_INCLUDE_API_MODULES = " \
     power_supply_DC_API \
     session_cost_API \
     session_cost_consumer_API \
+    session_storage_consumer_API \
     slac_API \
     system_API \
 "
@@ -100,6 +102,7 @@ EVEREST_INCLUDE_MODULES = " \
     PN532TokenProvider \
     PN7160TokenProvider \
     PacketSniffer \
+    PersistentSessionStorage \
     PersistentStore \
     RpcApi \
     SerialCommHub \
