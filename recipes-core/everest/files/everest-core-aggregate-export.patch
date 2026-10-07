@@ -1,3 +1,7 @@
+Export all everest-core components via the aggregate everest-core package
+
+Upstream-Status: Pending
+
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 0dd57c654..110b7c1de 100644
 --- a/CMakeLists.txt

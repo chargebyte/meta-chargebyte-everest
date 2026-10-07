@@ -5,6 +5,8 @@ Subject: [PATCH] Restrict git describe tag search to standard patterns
 
 This filters out custom tags which would appear in the version string.
 
+Upstream-Status: Pending
+
 Signed-off-by: Moritz Barsnick <moritz.barsnick@chargebyte.com>
 ---
  version-information.cmake | 2 +-

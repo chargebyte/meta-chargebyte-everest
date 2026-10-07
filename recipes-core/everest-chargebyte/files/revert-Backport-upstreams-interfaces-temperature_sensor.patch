@@ -1,3 +1,7 @@
+Revert "Backport upstream's interfaces/temperature_sensor"
+
+Upstream-Status: Inappropriate [everest-core main provides the interface itself]
+
 diff --git a/interfaces/temperature_sensor.yaml b/interfaces/temperature_sensor.yaml
 deleted file mode 100644
 index 969408f..0000000

@@ -1,3 +1,7 @@
+Fix order of aggregated generated package configs
+
+Upstream-Status: Submitted [https://github.com/EVerest/everest-cmake/pull/36]
+
 diff --git a/packaging-helper.cmake b/packaging-helper.cmake
 index 9c978ac..a1d59c4 100644
 --- a/packaging-helper.cmake

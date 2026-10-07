@@ -5,6 +5,8 @@ Subject: [PATCH] CMake: drop everest::system package dependency
 
 It is exported by everest-core.
 
+Upstream-Status: Pending
+
 Signed-off-by: Moritz Barsnick <moritz.barsnick@chargebyte.com>
 ---
  CMakeLists.txt | 1 -
