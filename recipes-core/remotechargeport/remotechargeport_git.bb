@@ -9,6 +9,7 @@ SRC_URI = " \
     file://systemaggregatorftpd-generator \
     file://systemaggregatorftpd.socket \
     file://systemaggregatorftpd@.service \
+    file://0001-Use-Boost-Process-v1-API-explicitly-for-Boost-1.86.patch \
 "
 
 SRCREV = "77722fa3449b6b255cdf094419841238aa66b52f"
