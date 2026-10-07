@@ -7,14 +7,12 @@ LIC_FILES_CHKSUM = "file://LICENSE-APACHE;md5=175792518e4ac015ab6696d16c4f607e \
 
 SRC_URI = "git://github.com/chargebyte/everest-ui.git;branch=main;protocol=https"
 
-SRCREV = "7a7aa92e224959bb4f5724e0f439c4cf96c377d1"
+SRCREV = "d8146bfd6475d3aa1ddefabc6de1fc24c5d14d1e"
 PV = "0.2.2-git${SRCPV}"
 
 DEPENDS = "qtbase qtwebsockets qtconnectivity yaml-cpp"
 
-inherit cmake_qt5 systemd
-
-S = "${WORKDIR}/git"
+inherit qt6-cmake systemd
 
 SYSTEMD_SERVICE:${PN} = "webui.service"
 SYSTEMD_AUTO_ENABLE:${PN} = "disable"
