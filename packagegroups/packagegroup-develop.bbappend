@@ -3,7 +3,7 @@ RDEPENDS:${PN} += "sigslot-dev"
 
 # on the Charge SOM platform, we have sufficient free space and enough
 # CPU power to use these tools
-RDEPENDS:${PN} += "${@bb.utils.contains("MACHINE", "chargesom", "node-red nodejs-npm", "", d)}"
+RDEPENDS:${PN} += "${@bb.utils.contains("MACHINE", "chargesom", "nodejs-npm", "", d)}"
 
 # we exclude the dependency in EVerest recipe but the library should be
 # available in our developer rootfs so users can cross-build bringup modules

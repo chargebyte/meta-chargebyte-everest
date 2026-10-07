@@ -14,8 +14,6 @@ SRC_URI = " \
 SRCREV = "77722fa3449b6b255cdf094419841238aa66b52f"
 PV = "2026.10.0-pre0+git${SRCPV}"
 
-S = "${WORKDIR}/git"
-
 inherit cmake pkgconfig systemd python3native
 
 DEPENDS = " \
@@ -45,14 +43,14 @@ FILES:${PN} += " \
 do_install:append() {
     # install environment configuration for helper ftpd
     install -m 0755 -d ${D}${sysconfdir}/default
-    install -m 0644 ${WORKDIR}/systemaggregatorftpd ${D}${sysconfdir}/default/systemaggregatorftpd
+    install -m 0644 ${UNPACKDIR}/systemaggregatorftpd ${D}${sysconfdir}/default/systemaggregatorftpd
 
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${systemd_system_unitdir}
-        install -m 0644 ${WORKDIR}/systemaggregatorftpd@.service ${D}${systemd_system_unitdir}/
-        install -m 0644 ${WORKDIR}/systemaggregatorftpd.socket ${D}${systemd_system_unitdir}/
+        install -m 0644 ${UNPACKDIR}/systemaggregatorftpd@.service ${D}${systemd_system_unitdir}/
+        install -m 0644 ${UNPACKDIR}/systemaggregatorftpd.socket ${D}${systemd_system_unitdir}/
         install -d ${D}${systemd_unitdir}/system-generators
-        install -m 0755 ${WORKDIR}/systemaggregatorftpd-generator ${D}${systemd_unitdir}/system-generators/
+        install -m 0755 ${UNPACKDIR}/systemaggregatorftpd-generator ${D}${systemd_unitdir}/system-generators/
     fi
 
     # don't install example configuration

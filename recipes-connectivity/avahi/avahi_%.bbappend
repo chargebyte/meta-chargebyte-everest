@@ -5,7 +5,7 @@ SRC_URI += " \
 "
 
 do_install:append() {
-    install -m 0644 ${WORKDIR}/avahi-daemon.conf ${D}${sysconfdir}/avahi/avahi-daemon.conf
+    install -m 0644 ${UNPACKDIR}/avahi-daemon.conf ${D}${sysconfdir}/avahi/avahi-daemon.conf
 }
 
 PACKAGES =+ "avahi-daemon-config"

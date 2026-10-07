@@ -10,8 +10,6 @@ SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=feature/ada
 SRCREV = "ce12fc8afe18e3fc173efaf888f2143134b24418"
 PV = "0.33.0.1+git${SRCPV}"
 
-S = "${WORKDIR}/git"
-
 inherit cmake pkgconfig python3native
 
 DEPENDS = " \
