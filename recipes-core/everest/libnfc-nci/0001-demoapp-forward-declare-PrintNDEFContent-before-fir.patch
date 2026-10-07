@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Simon Stuerz <simon.stuerz@nymea.io>
+Date: Tue, 28 Jul 2026 00:00:00 +0200
+Subject: [PATCH] demoapp: forward-declare PrintNDEFContent before first use
+
+Upstream-Status: Pending
+
+onMessageReceived() calls PrintNDEFContent() at line 451, but the function
+isn't defined until line 760, and there is no prototype anywhere in this
+file or in linux_nfc_api.h. Older GCC only warned about this ("implicit
+declaration of function"); GCC 14+ treats it as a hard compile error by
+default, which breaks the build on toolchains that have moved to GCC 14
+or newer (e.g. Yocto wrynose, GCC 15.3.0).
+
+Add a forward declaration alongside the existing includes so the compiler
+sees the correct signature before the first call site. No functional
+change: PrintNDEFContent's actual definition and behaviour are untouched.
+
+Found while building Tarragon under the wrynose Yocto BSP port
+(chargebyte-yocto meta-chargebyte-everest layer, which points
+libnfc-nci_2024.11.0 at chargebyte/linux_libnfc-nci.git's
+feature/libgpiod branch). Same latent bug, so it reproduces on any
+GCC 14+ toolchain regardless of Yocto version.
+
+Signed-off-by: Simon Stuerz <simon.stuerz@nymea.io>
+---
+ demoapp/main.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/demoapp/main.c
++++ b/demoapp/main.c
+@@ -21,6 +21,12 @@
+ #include <string.h>
+ #include "linux_nfc_api.h"
+ #include "tools.h"
++
++/* Forward declaration: PrintNDEFContent() is defined further down in this
++ * file but called from onMessageReceived() above its definition. GCC 14+
++ * treats implicit function declarations as a hard error by default. */
++void PrintNDEFContent(nfc_tag_info_t* TagInfo, ndef_info_t* NDEFinfo, unsigned char* ndefRaw, unsigned int ndefRawLen);
++
+ typedef enum eDevState
+ {
+     eDevState_NONE,
