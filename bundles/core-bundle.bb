@@ -32,6 +32,11 @@ RAUC_BUNDLE_COMPATIBLE:lime ?= "chargebyte Lime"
 
 RAUC_BUNDLE_HOOKS[file] = "hooks.sh"
 
+# verity bundles are authenticated block by block (dm-verity) while being
+# installed, unlike the legacy 'plain' format, and are required for
+# streaming/HTTP installation. Needs dm-verity support in the target kernel.
+RAUC_BUNDLE_FORMAT ?= "verity"
+
 RAUC_BUNDLE_SLOTS = "rootfs customerfs"
 
 RAUC_IMAGE_FSTYPE = "ext4"
