@@ -7,8 +7,8 @@ SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=feature/ada
            file://revert-Backport-upstreams-interfaces-temperature_sensor.patch \
 "
 
-SRCREV = "ce12fc8afe18e3fc173efaf888f2143134b24418"
-PV = "0.33.0.1+git${SRCPV}"
+SRCREV = "0d09eef4a37f6be998389907e66eeba42033f1cb"
+PV = "0.34.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
@@ -33,6 +33,7 @@ FILES:${PN}-dev += "${bindir}/dump_infypower_canid"
 EXTRA_OECMAKE += " \
     -DDISABLE_EDM=ON \
     -Deverest-chargebyte_USE_PYTHON_VENV=OFF \
+    ${@bb.utils.contains_any("MACHINE", "chargesom lime parsley", "-Deverest-chargebyte_WITH_RA_UTILS=ON", "", d)} \
 "
 
 EVEREST_EXCLUDE_MODULES ??= ""
