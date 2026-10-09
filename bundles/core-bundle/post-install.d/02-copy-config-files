@@ -8,6 +8,11 @@ SLOT_CLASS="$1"
 SLOT_MOUNT_POINT="$2"
 BUNDLE_MOUNT_POINT="$3"
 
+# print root's home directory as configured in the passwd file below $1
+root_home() {
+	grep '^root:' "$1/etc/passwd" | cut -d: -f6
+}
+
 if [ "$SLOT_CLASS" = "rootfs" ]; then
 	# source helper
 	. "$BUNDLE_MOUNT_POINT/post-install.d/00-tar-helper"
@@ -24,8 +29,6 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	/etc/ssh/ssh_host_ed25519_key.pub
 	/etc/ssh/ssh_host_rsa_key
 	/etc/ssh/ssh_host_rsa_key.pub
-	/home/root/.ssh
-	/home/root/.config
 	/etc/systemd/network
 	/etc/hostapd/hostapd.conf
 	/etc/wpa_supplicant
@@ -46,10 +49,20 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 		cat /etc/resolv.conf > "$SLOT_MOUNT_POINT/etc/resolv.conf"
 	fi
 
-	# migrate older /root to /home/root if present
-	if [ -d /root/.ssh ]; then
-		( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT/home"
-		/root/.ssh
-		EOF
+	# root's home moved from /home/root (kirkstone) to /root (wrynose), so
+	# look it up on both sides to migrate every old/new combination correctly
+	SRC_ROOT_HOME="$(root_home)"
+	DST_ROOT_HOME="$(root_home "$SLOT_MOUNT_POINT")"
+	if [ -n "$SRC_ROOT_HOME" ] && [ -n "$DST_ROOT_HOME" ]; then
+		mkdir -p "$SLOT_MOUNT_POINT$DST_ROOT_HOME"
+
+		# migrate .ssh of even older systems which used /root while the
+		# current system uses another home directory
+		if [ "$SRC_ROOT_HOME" != "/root" ] && [ -d /root/.ssh ]; then
+			tar -c $IGNORE_FAILED_READ -C /root .ssh | tar -x -C "$SLOT_MOUNT_POINT$DST_ROOT_HOME"
+		fi
+
+		tar -c $IGNORE_FAILED_READ -C "$SRC_ROOT_HOME" .ssh .config .bash_history | \
+			tar -x -C "$SLOT_MOUNT_POINT$DST_ROOT_HOME"
 	fi
 fi
