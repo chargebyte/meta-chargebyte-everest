@@ -3,8 +3,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
 
-SRCREV = "2dfad2753e2594a1ff4c466ff0020ab564b151be"
-PV = "0.33.0+git${SRCPV}"
+SRCREV = "0d09eef4a37f6be998389907e66eeba42033f1cb"
+PV = "0.34.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
@@ -29,6 +29,7 @@ FILES:${PN}-dev += "${bindir}/dump_infypower_canid"
 EXTRA_OECMAKE += " \
     -DDISABLE_EDM=ON \
     -Deverest-chargebyte_USE_PYTHON_VENV=OFF \
+    ${@bb.utils.contains_any("MACHINE", "chargesom lime parsley", "-Deverest-chargebyte_WITH_RA_UTILS=ON", "", d)} \
 "
 
 EVEREST_EXCLUDE_MODULES ??= ""
