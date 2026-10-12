@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# Preserve the SSH autostart choice across an update. When migrating from an
+# image without explicit state, derive the initial choice from the root
+# password once and create the state directory to prevent future inference.
+
+set -eu
+
+SLOT_CLASS="$1"
+SLOT_MOUNT_POINT="$2"
+
+STATE_DIR="/var/lib/ssh-autostart"
+SOURCE_STATE_DIR="$STATE_DIR"
+TARGET_STATE_DIR="$SLOT_MOUNT_POINT$STATE_DIR"
+TARGET_ENABLED_MARKER="$TARGET_STATE_DIR/enabled"
+LEGACY_HASHES_FILE="$SLOT_MOUNT_POINT/usr/share/ssh-autostart/legacy-default-password-hashes"
+
+[ "$SLOT_CLASS" = "rootfs" ] || exit 0
+
+if [ -d "$SOURCE_STATE_DIR" ]; then
+	rm -rf "$TARGET_STATE_DIR"
+	mkdir -p "$(dirname "$TARGET_STATE_DIR")"
+	chmod 0755 "$(dirname "$TARGET_STATE_DIR")"
+	cp -a "$SOURCE_STATE_DIR" "$TARGET_STATE_DIR"
+	exit 0
+fi
+
+mkdir -p "$TARGET_STATE_DIR"
+chmod 0755 "$TARGET_STATE_DIR"
+rm -f "$TARGET_ENABLED_MARKER"
+
+ROOT_HASH="$(awk -F: '$1 == "root" { print $2 }' /etc/shadow 2>/dev/null || true)"
+case "$ROOT_HASH" in
+	""|\!*|\**)
+		# No usable password: leave SSH disabled.
+		exit 0
+		;;
+esac
+
+if [ -f "$LEGACY_HASHES_FILE" ] && grep -Fqx "$ROOT_HASH" "$LEGACY_HASHES_FILE"; then
+	# A known default password must never retain remote access.
+	exit 0
+fi
+
+: > "$TARGET_ENABLED_MARKER"
+chmod 0644 "$TARGET_ENABLED_MARKER"
