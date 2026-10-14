@@ -7,8 +7,8 @@ LIC_FILES_CHKSUM = "file://LICENSE-APACHE;md5=175792518e4ac015ab6696d16c4f607e \
 
 SRC_URI = "git://github.com/chargebyte/everest-ui.git;branch=main;protocol=https"
 
-SRCREV = "7a7aa92e224959bb4f5724e0f439c4cf96c377d1"
-PV = "0.2.2-git${SRCPV}"
+SRCREV = "6a665741ddf97c399735b1c406025345558b1a00"
+PV = "0.3.0-git${SRCPV}"
 
 DEPENDS = "qtbase qtwebsockets qtconnectivity yaml-cpp"
 
