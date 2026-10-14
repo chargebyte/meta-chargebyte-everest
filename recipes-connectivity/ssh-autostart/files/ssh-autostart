@@ -1,0 +1,48 @@
+#!/bin/sh
+
+set -eu
+
+STATE_DIR="/var/lib/ssh-autostart"
+ENABLED_MARKER="$STATE_DIR/enabled"
+SOCKET_UNIT="sshd.socket"
+
+usage() {
+	echo "Usage: ssh-autostart --enable | --disable | --status" >&2
+}
+
+if [ "$(id -u)" -ne 0 ]; then
+	echo "ssh-autostart must be run as root." >&2
+	exit 1
+fi
+
+case "${1:-}" in
+	--enable)
+		mkdir -p "$STATE_DIR"
+		chmod 0755 "$STATE_DIR"
+		TEMP_MARKER="$STATE_DIR/.enabled.$$"
+		trap 'rm -f "$TEMP_MARKER"' EXIT INT TERM
+		: > "$TEMP_MARKER"
+		chmod 0644 "$TEMP_MARKER"
+		mv -f "$TEMP_MARKER" "$ENABLED_MARKER"
+		trap - EXIT INT TERM
+		systemctl start "$SOCKET_UNIT"
+		;;
+	--disable)
+		mkdir -p "$STATE_DIR"
+		chmod 0755 "$STATE_DIR"
+		rm -f "$ENABLED_MARKER"
+		systemctl stop "$SOCKET_UNIT"
+		;;
+	--status)
+		if [ -f "$ENABLED_MARKER" ]; then
+			echo "enabled"
+			exit 0
+		fi
+		echo "disabled"
+		exit 1
+		;;
+	*)
+		usage
+		exit 2
+		;;
+esac
