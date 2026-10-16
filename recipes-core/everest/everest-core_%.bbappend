@@ -12,6 +12,7 @@ SRC_URI += " \
     file://0001-PN7160TokenProvider-rework-linking-to-libnfs-nci.patch \
     file://0010-fix-PN532TokenProvider-rework-low-level-frame-sendin.patch \
     file://journalctl-alias.sh \
+    file://led_rgb.sh \
 "
 
 # we don't build bring up modules
@@ -126,6 +127,9 @@ do_install:append() {
     # install alias for journalctl convenience
     install -d ${D}${sysconfdir}/profile.d/
     install -m 0644 ${WORKDIR}/journalctl-alias.sh ${D}${sysconfdir}/profile.d/
+
+    # install RGB LED control script
+    install -m 0755 ${WORKDIR}/led_rgb.sh ${D}${bindir}/led_rgb.sh
 
     # additional systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
