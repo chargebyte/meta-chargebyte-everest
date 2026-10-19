@@ -15,5 +15,6 @@ if [ "$SLOT_CLASS" = "rootfs" ]; then
 	# note that the following copies symlinks as-is since tar option --dereference is not given
 	( xargs tar -c $IGNORE_FAILED_READ -C / ) <<-EOF | tar -x -C "$SLOT_MOUNT_POINT"
 	/etc/everest-ui
+	/var/lib/everest-ui
 	EOF
 fi
