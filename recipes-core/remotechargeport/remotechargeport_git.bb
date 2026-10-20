@@ -9,6 +9,7 @@ SRC_URI = " \
     file://systemaggregatorftpd-generator \
     file://systemaggregatorftpd.socket \
     file://systemaggregatorftpd@.service \
+    file://factory-reset \
 "
 
 SRCREV = "e9a6651d683e372eb6765500c2c74df401ab6af6"
@@ -59,4 +60,7 @@ do_install:append() {
 
     # version_information.txt from multiple repositories are in conflict
     rm -f ${D}${datadir}/everest/version_information.txt
+
+    install -d ${D}${libexecdir}/factory-reset.d
+    install -m 0755 ${WORKDIR}/factory-reset ${D}${libexecdir}/factory-reset.d/50_remotechargeport
 }
