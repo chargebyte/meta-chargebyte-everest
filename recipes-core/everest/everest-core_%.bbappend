@@ -12,7 +12,7 @@ SRC_URI += " \
     file://0001-PN7160TokenProvider-rework-linking-to-libnfs-nci.patch \
     file://0010-fix-PN532TokenProvider-rework-low-level-frame-sendin.patch \
     file://journalctl-alias.sh \
-    file://led_rgb.sh \
+    file://exec-stop-post-handler.sh \
 "
 
 # we don't build bring up modules
@@ -128,8 +128,9 @@ do_install:append() {
     install -d ${D}${sysconfdir}/profile.d/
     install -m 0644 ${WORKDIR}/journalctl-alias.sh ${D}${sysconfdir}/profile.d/
 
-    # install RGB LED control script
-    install -m 0755 ${WORKDIR}/led_rgb.sh ${D}${bindir}/led_rgb.sh
+    # install LED notification script
+    install -d ${D}${libexecdir}/everest
+    install -m 0755 ${WORKDIR}/exec-stop-post-handler.sh ${D}${libexecdir}/everest/
 
     # additional systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
@@ -138,4 +139,7 @@ do_install:append() {
 
 FILES:${PN} += " \
     ${systemd_system_unitdir}/everest.service.d/* \
+    ${libexecdir}/everest/exec-stop-post-handler.sh \
 "
+
+RDEPENDS:${PN} += "bsp-basefiles"
