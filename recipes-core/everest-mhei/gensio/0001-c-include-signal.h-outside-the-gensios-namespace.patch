@@ -1,0 +1,41 @@
+From 5e46f22b567f900f6841fbf8807d63eb0e17d598 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <mhei@heimpold.de>
+Date: Tue, 20 Oct 2026 21:51:43 +0200
+Subject: [PATCH] c++: include signal.h outside the gensios namespace
+
+The C++ wrapper includes gensio.h inside namespace gensios. On POSIX
+systems, gensio_os_funcs.h also includes signal.h, which can pull in
+additional system headers. If those headers are first included within
+the namespace, their declarations are not available in the global scope.
+Header guards then prevent subsequent includes from providing the global
+declarations expected by other system headers.
+
+On AArch64 Linux, including sys/prctl.h after gensio/gensio can therefore
+fail because __u64 and __u32 were declared inside namespace gensios.
+
+Include signal.h before entering the namespace so its declarations and
+those of its transitive system headers remain in the global scope.
+
+Signed-off-by: Michael Heimpold <mhei@heimpold.de>
+---
+ c++/include/gensio/gensioosh | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/c++/include/gensio/gensioosh b/c++/include/gensio/gensioosh
+index 64d593fffc3b..c1e9215da80c 100644
+--- a/c++/include/gensio/gensioosh
++++ b/c++/include/gensio/gensioosh
+@@ -9,6 +9,10 @@
+ #ifndef GENSIOOSH_CPP_INCLUDE
+ #define GENSIOOSH_CPP_INCLUDE
+ 
++#ifndef _WIN32
++#include <signal.h>
++#endif
++
+ #include <string>
+ #include <stdexcept>
+ #include <atomic>
+-- 
+2.34.1
+
