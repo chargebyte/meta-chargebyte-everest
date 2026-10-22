@@ -1,0 +1,5 @@
+#!/bin/sh
+
+rm -rf \
+    /etc/everest-ui \
+    /var/lib/everest-ui

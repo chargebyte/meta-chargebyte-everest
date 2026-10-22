@@ -5,7 +5,10 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = " \
     file://ssh-autostart \
     file://ssh-autostart.conf \
+    file://factory-reset \
 "
+
+PV = "2"
 
 S = "${WORKDIR}"
 
@@ -33,10 +36,11 @@ do_install() {
     install -d ${D}${datadir}/ssh-autostart
     printf '%s\n' '${SSH_AUTOSTART_LEGACY_DEFAULT_PASSWORD_HASHES}' \
         > ${D}${datadir}/ssh-autostart/legacy-default-password-hashes
+
+    install -d ${D}${libexecdir}/factory-reset.d
+    install -m 0755 ${WORKDIR}/factory-reset ${D}${libexecdir}/factory-reset.d/20_ssh-autostart
 }
 
 FILES:${PN} += " \
     ${systemd_system_unitdir}/sshd.socket.d/ \
-    ${localstatedir}/lib/ssh-autostart/ \
-    ${datadir}/ssh-autostart/ \
 "

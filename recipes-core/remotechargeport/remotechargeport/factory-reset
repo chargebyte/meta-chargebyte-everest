@@ -1,0 +1,11 @@
+#!/bin/sh
+
+UPLOAD_DIR="/srv/diagnostics-incoming"
+WORK_DIR="/srv/diagnostics-outgoing"
+CFG="/etc/default/systemaggregatorftpd"
+
+[ -f "$CFG" ] && . "$CFG"
+
+rm -rf \
+    "$UPLOAD_DIR" \
+    "$WORK_DIR"
