@@ -10,8 +10,8 @@ SRC_URI = " \
     file://factory-reset \
 "
 
-SRCREV = "6c45905ea1daf3ce0adcc7b00a44d5b0bccc74b1"
-PV = "0.5.0-git${SRCPV}"
+SRCREV = "8616cd8904ea17d9e0e36f48126f5748c2af2e9c"
+PV = "0.6.0-git${SRCPV}"
 
 DEPENDS = "qtbase qtwebsockets qtconnectivity yaml-cpp"
 
