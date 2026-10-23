@@ -2,7 +2,8 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=feature/adapt-cbsystem-to-2409;protocol=https \
+SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https \
+           file://0001-CbSystem-adapt-to-changed-system-interface.patch
            file://0001-CMake-drop-everest-system-package-dependency.patch \
            file://revert-Backport-upstreams-interfaces-temperature_sensor.patch \
 "
