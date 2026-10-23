@@ -1,0 +1,79 @@
+From 7bd908a1a874cd639b7211dca62fe1564d2823c8 Mon Sep 17 00:00:00 2001
+From: Michael Heimpold <michael.heimpold@chargebyte.com>
+Date: Fri, 4 Sep 2026 17:12:38 +0200
+Subject: [PATCH] CbSystem: adapt to changed system interface
+
+Return NotSupported until we have a real implementation.
+
+Signed-off-by: Michael Heimpold <michael.heimpold@chargebyte.com>
+---
+ modules/CbSystem/main/systemImpl.cpp | 14 +++++++++++---
+ modules/CbSystem/main/systemImpl.hpp |  4 +++-
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/modules/CbSystem/main/systemImpl.cpp b/modules/CbSystem/main/systemImpl.cpp
+index 6621e83..6890f87 100644
+--- a/modules/CbSystem/main/systemImpl.cpp
++++ b/modules/CbSystem/main/systemImpl.cpp
+@@ -1,5 +1,5 @@
+ // SPDX-License-Identifier: Apache-2.0
+-// Copyright Pionix GmbH and Contributors to EVerest
++// Copyright chargebyte GmbH, Pionix GmbH and Contributors to EVerest
+ 
+ #include "systemImpl.hpp"
+ 
+@@ -268,7 +268,7 @@ void systemImpl::standard_firmware_update(const types::system::FirmwareUpdateReq
+                 EVLOG_info << "Firmware update status: " << output_line;
+                 firmware_status.firmware_update_status =
+                     types::system::string_to_firmware_update_status_enum(output_line);
+-                 this->publish_firmware_update_status(firmware_status);
++                this->publish_firmware_update_status(firmware_status);
+                 return CmdControl::Continue;
+             });
+             if (firmware_status.firmware_update_status == types::system::FirmwareUpdateStatusEnum::DownloadFailed &&
+@@ -789,7 +789,7 @@ types::system::BootReason systemImpl::handle_get_boot_reason() {
+     }
+     auto reason_variant = this->mod->r_store.at(0)->call_load(BOOT_REASON_KEY);
+     auto* reason = std::get_if<std::string>(&reason_variant);
+-    auto final_reason{this->boot_reason}; // fallback: rauc-based
++    auto final_reason {this->boot_reason}; // fallback: rauc-based
+     if (reason != nullptr) {
+         final_reason = types::system::string_to_boot_reason(*reason);
+     }
+@@ -797,5 +797,13 @@ types::system::BootReason systemImpl::handle_get_boot_reason() {
+     return final_reason;
+ }
+ 
++types::network::ConfigureNetworkResponse
++systemImpl::handle_configure_network(types::network::ConfigureNetworkRequest& request) {
++    (void)request;
++    types::network::ConfigureNetworkResponse response;
++    response.status = types::network::ConfigureNetworkStatusEnum::NotSupported;
++    return response;
++}
++
+ } // namespace main
+ } // namespace module
+diff --git a/modules/CbSystem/main/systemImpl.hpp b/modules/CbSystem/main/systemImpl.hpp
+index ef900f1..a02d263 100644
+--- a/modules/CbSystem/main/systemImpl.hpp
++++ b/modules/CbSystem/main/systemImpl.hpp
+@@ -1,5 +1,5 @@
+ // SPDX-License-Identifier: Apache-2.0
+-// Copyright Pionix GmbH and Contributors to EVerest
++// Copyright chargebyte GmbH, Pionix GmbH and Contributors to EVerest
+ #ifndef MAIN_SYSTEM_IMPL_HPP
+ #define MAIN_SYSTEM_IMPL_HPP
+ 
+@@ -46,6 +46,8 @@ protected:
+     virtual void handle_reset(types::system::ResetType& type, bool& scheduled) override;
+     virtual bool handle_set_system_time(std::string& timestamp) override;
+     virtual types::system::BootReason handle_get_boot_reason() override;
++    virtual types::network::ConfigureNetworkResponse
++    handle_configure_network(types::network::ConfigureNetworkRequest& request) override;
+ 
+     // ev@d2d1847a-7b88-41dd-ad07-92785f06f5c4:v1
+     // insert your protected definitions here
+-- 
+2.34.1
+
