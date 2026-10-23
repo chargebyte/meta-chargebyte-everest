@@ -5,8 +5,12 @@ SRC_URI += "file://everest.service \
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
+RDEPENDS:${PN} += "openssl-bin"
+
 SRC_URI += " \
     file://02-led-boot-notification.conf \
+    file://03-secc-certificate.conf \
+    file://generate-secc-certificate.sh \
     file://0001-Drop-timestamp-from-logging.patch \
     file://0001-lib-everest-log-pretty-print-none-info-messages.patch \
     file://0001-PN7160TokenProvider-rework-linking-to-libnfs-nci.patch \
@@ -130,6 +134,10 @@ do_install:append() {
     # additional systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
     install -m 0644 ${WORKDIR}/02-led-boot-notification.conf ${D}${systemd_system_unitdir}/everest.service.d/
+    install -m 0644 ${WORKDIR}/03-secc-certificate.conf ${D}${systemd_system_unitdir}/everest.service.d/
+
+    install -d ${D}${libexecdir}/everest
+    install -m 0755 ${WORKDIR}/generate-secc-certificate.sh ${D}${libexecdir}/everest/
 }
 
 FILES:${PN} += " \
