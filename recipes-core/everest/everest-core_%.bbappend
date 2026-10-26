@@ -138,6 +138,13 @@ do_install:append() {
 
     install -d ${D}${libexecdir}/everest
     install -m 0755 ${WORKDIR}/generate-secc-certificate.sh ${D}${libexecdir}/everest/
+
+    # allow OCPP201 to pick up its defaults from the distribution
+    # /usr/share, while allowing users to overwrite the custom device
+    # model in /var/lib/everest/ocpp201/component_config/custom (which does
+    # not need to exist)
+    # the ${datadir} link location is expected to exist
+    ln -s ../../../../../../var/lib/everest/ocpp201/component_config/custom ${D}${datadir}/everest/modules/OCPP201/component_config/
 }
 
 FILES:${PN} += " \
