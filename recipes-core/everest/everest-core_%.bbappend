@@ -137,6 +137,13 @@ do_install:append() {
     # additional systemd configuration for everest.service
     install -d ${D}${systemd_system_unitdir}/everest.service.d/
     install -m 0644 ${WORKDIR}/02-led-boot-notification.conf ${D}${systemd_system_unitdir}/everest.service.d/
+
+    # allow OCPP201 to pick up its defaults from the distribution
+    # /usr/share, while allowing users to overwrite the custom device
+    # model in /var/lib/everest/ocpp201/component_config/custom (which does
+    # not need to exist)
+    # the ${datadir} link location is expected to exist
+    ln -s ../../../../../../var/lib/everest/ocpp201/component_config/custom ${D}${datadir}/everest/modules/OCPP201/component_config/
 }
 
 FILES:${PN} += " \
