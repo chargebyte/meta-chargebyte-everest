@@ -8,8 +8,8 @@ SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=feature/add
            file://revert-Backport-upstreams-interfaces-temperature_sensor.patch \
 "
 
-SRCREV = "c840ff8d424a53f92e212acf5905bb2f58b6a18e"
-PV = "0.34.0.1+git${SRCPV}"
+SRCREV = "b02484892fdfbbf928d8d87edf16547f7d6fb422"
+PV = "0.34.0.2+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
