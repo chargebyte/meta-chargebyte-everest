@@ -3,8 +3,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 SRC_URI = "git://github.com/chargebyte/everest-chargebyte.git;branch=main;protocol=https"
 
-SRCREV = "0d09eef4a37f6be998389907e66eeba42033f1cb"
-PV = "0.34.0+git${SRCPV}"
+SRCREV = "c62e3bd7fddb8de25784a24ce811cc296a03edc7"
+PV = "0.35.0+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
@@ -62,6 +62,7 @@ EVEREST_EXCLUDE_MODULES:tarragon ??= " \
 
 EVEREST_EXCLUDE_MODULES:parsley ??= " \
     CbChargeSOMDriver \
+    CbGPIOChargePause \
     CbGPIOEnergyLimits \
     CbGPIOSMITH \
     CbTarragonDIs \
