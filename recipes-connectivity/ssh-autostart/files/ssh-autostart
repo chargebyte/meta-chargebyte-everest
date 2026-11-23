@@ -4,10 +4,44 @@ set -eu
 
 STATE_DIR="/var/lib/ssh-autostart"
 ENABLED_MARKER="$STATE_DIR/enabled"
+INITIALIZED_MARKER="$STATE_DIR/initialized"
 SOCKET_UNIT="sshd.socket"
 
+prepare_state() {
+	mkdir -p "$STATE_DIR"
+	chmod 0755 "$STATE_DIR"
+}
+
+mark_initialized() {
+	: > "$INITIALIZED_MARKER"
+	chmod 0644 "$INITIALIZED_MARKER"
+}
+
+enable_state() {
+	TEMP_MARKER="$STATE_DIR/.enabled.$$"
+	trap 'rm -f "$TEMP_MARKER"' EXIT INT TERM
+	: > "$TEMP_MARKER"
+	chmod 0644 "$TEMP_MARKER"
+	mv -f "$TEMP_MARKER" "$ENABLED_MARKER"
+	trap - EXIT INT TERM
+}
+
+initialize_state() {
+	[ ! -f "$INITIALIZED_MARKER" ] || return 0
+	prepare_state
+	# Leave initialization pending until baptism data supplies a product code.
+	PRODUCT_CODE="$(bd -n get product_code 2>/dev/null)" || return 0
+	[ -n "$PRODUCT_CODE" ] || return 0
+	case "$PRODUCT_CODE" in
+		CBCCY-FTC-0000|CBCCY-FTC-000|CBCCY-STD-000)
+			enable_state
+			;;
+	esac
+	mark_initialized
+}
+
 usage() {
-	echo "Usage: ssh-autostart --enable | --disable | --status" >&2
+	echo "Usage: ssh-autostart --enable | --disable | --status | --initialize | --factory-reset" >&2
 }
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -17,21 +51,28 @@ fi
 
 case "${1:-}" in
 	--enable)
-		mkdir -p "$STATE_DIR"
-		chmod 0755 "$STATE_DIR"
-		TEMP_MARKER="$STATE_DIR/.enabled.$$"
-		trap 'rm -f "$TEMP_MARKER"' EXIT INT TERM
-		: > "$TEMP_MARKER"
-		chmod 0644 "$TEMP_MARKER"
-		mv -f "$TEMP_MARKER" "$ENABLED_MARKER"
-		trap - EXIT INT TERM
+		prepare_state
+		enable_state
+		mark_initialized
 		systemctl start "$SOCKET_UNIT"
 		;;
 	--disable)
-		mkdir -p "$STATE_DIR"
-		chmod 0755 "$STATE_DIR"
+		prepare_state
+		mark_initialized
 		rm -f "$ENABLED_MARKER"
 		systemctl stop "$SOCKET_UNIT"
+		;;
+	--initialize)
+		# Used before sshd.socket evaluates its enabled-marker condition.
+		initialize_state
+		;;
+	--factory-reset)
+		rm -rf "$STATE_DIR"
+		initialize_state
+		if [ -f "$ENABLED_MARKER" ]; then
+			# The GPIO reset can run before socket startup is allowed.
+			systemctl --no-block start "$SOCKET_UNIT"
+		fi
 		;;
 	--status)
 		if [ -f "$ENABLED_MARKER" ]; then

@@ -1,4 +1,3 @@
 #!/bin/sh
 
-rm -rf \
-    /var/lib/ssh-autostart/*
+exec /usr/sbin/ssh-autostart --factory-reset

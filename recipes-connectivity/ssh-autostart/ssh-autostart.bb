@@ -5,16 +5,17 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = " \
     file://ssh-autostart \
     file://ssh-autostart.conf \
+    file://ssh-autostart-init.service \
     file://factory-reset \
 "
 
-PV = "2"
+PV = "3"
 
 S = "${WORKDIR}"
 
 inherit allarch
 
-RDEPENDS:${PN} = "openssh-sshd systemd"
+RDEPENDS:${PN} = "openssh-sshd systemd libbaptismdata"
 
 # One hash per line. This is the password hash used by legacy chargebyte
 # images. A distro can override the list without putting migration policy into
@@ -28,9 +29,10 @@ do_install() {
     install -d ${D}${systemd_system_unitdir}/sshd.socket.d
     install -m 0644 ${WORKDIR}/ssh-autostart.conf \
         ${D}${systemd_system_unitdir}/sshd.socket.d/ssh-autostart.conf
+    install -m 0644 ${WORKDIR}/ssh-autostart-init.service \
+        ${D}${systemd_system_unitdir}/ssh-autostart-init.service
 
-    # The directory itself records that the SSH policy has been initialized.
-    # An absent enabled marker represents an explicit disabled state.
+    # Leave the initialized marker absent so first boot applies device defaults.
     install -d -m 0755 ${D}${localstatedir}/lib/ssh-autostart
 
     install -d ${D}${datadir}/ssh-autostart
@@ -43,4 +45,5 @@ do_install() {
 
 FILES:${PN} += " \
     ${systemd_system_unitdir}/sshd.socket.d/ \
+    ${systemd_system_unitdir}/ssh-autostart-init.service \
 "
