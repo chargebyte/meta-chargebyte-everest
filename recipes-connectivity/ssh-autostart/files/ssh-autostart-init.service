@@ -1,0 +1,11 @@
+[Unit]
+Description=Initialize SSH autostart policy from baptism data
+DefaultDependencies=no
+RequiresMountsFor=/var/lib/ssh-autostart
+After=local-fs.target factory-reset.service
+Before=sshd.socket
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ssh-autostart --initialize
+RemainAfterExit=yes

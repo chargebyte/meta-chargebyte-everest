@@ -2,7 +2,7 @@
 #
 # Preserve the SSH autostart choice across an update. When migrating from an
 # image without explicit state, derive the initial choice from the root
-# password once and create the state directory to prevent future inference.
+# password once and mark the choice initialized to prevent future inference.
 
 set -eu
 
@@ -13,6 +13,7 @@ STATE_DIR="/var/lib/ssh-autostart"
 SOURCE_STATE_DIR="$STATE_DIR"
 TARGET_STATE_DIR="$SLOT_MOUNT_POINT$STATE_DIR"
 TARGET_ENABLED_MARKER="$TARGET_STATE_DIR/enabled"
+TARGET_INITIALIZED_MARKER="$TARGET_STATE_DIR/initialized"
 LEGACY_HASHES_FILE="$SLOT_MOUNT_POINT/usr/share/ssh-autostart/legacy-default-password-hashes"
 
 [ "$SLOT_CLASS" = "rootfs" ] || exit 0
@@ -22,12 +23,17 @@ if [ -d "$SOURCE_STATE_DIR" ]; then
 	mkdir -p "$(dirname "$TARGET_STATE_DIR")"
 	chmod 0755 "$(dirname "$TARGET_STATE_DIR")"
 	cp -a "$SOURCE_STATE_DIR" "$TARGET_STATE_DIR"
+	# Older versions used only the directory to record an explicit choice.
+	: > "$TARGET_INITIALIZED_MARKER"
+	chmod 0644 "$TARGET_INITIALIZED_MARKER"
 	exit 0
 fi
 
 mkdir -p "$TARGET_STATE_DIR"
 chmod 0755 "$TARGET_STATE_DIR"
 rm -f "$TARGET_ENABLED_MARKER"
+: > "$TARGET_INITIALIZED_MARKER"
+chmod 0644 "$TARGET_INITIALIZED_MARKER"
 
 ROOT_HASH="$(awk -F: '$1 == "root" { print $2 }' /etc/shadow 2>/dev/null || true)"
 case "$ROOT_HASH" in
